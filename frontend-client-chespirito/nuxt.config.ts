@@ -1,3 +1,5 @@
+import process from "process";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   head: {
@@ -19,6 +21,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       API_BASE_URL: process.env.API_BASE_URL,
+      WPP: process.env.WPP
     },
   },
 

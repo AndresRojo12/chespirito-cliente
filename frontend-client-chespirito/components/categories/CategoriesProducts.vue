@@ -1,142 +1,150 @@
 <template>
-    <div v-if="category">
-      <v-list-item class="exit-icon" prepend-icon="mdi-arrow-left" @click="back"></v-list-item>
-      <v-card>
-        <h1 class="title">{{ category.name }}</h1>
-      </v-card>
-      <div class="subtitle">
-        <h2>Productos</h2>
-      </div>
-      <div class="product-container">
-        <div
-          class="product-item"
-          v-for="product in category.products"
-          :key="product.id"
-        >
-          <div>
-            <img class="product-image" :src="getImageUrl(product.imagePath)" />
-          </div>
-          <h3 class="text">Nombre:{{ product.name }}</h3>
-          <p class="text">Descripción{{ product.description }}</p>
-          <p class="text">Precio:{{ product.price }}</p>
+  <div v-if="category">
+    <v-list-item class="exit-icon" prepend-icon="mdi-arrow-left" @click="back"></v-list-item>
+    <v-card>
+      <h1 class="title">{{ category.name }}</h1>
+    </v-card>
+    <div class="subtitle">
+      <h2>Productos</h2>
+    </div>
+    <div class="product-container">
+      <div
+        class="product-item"
+        v-for="product in category.products"
+        :key="product.id"
+      >
+        <div>
+          <img class="product-image" :src="getImageUrl(product.imagePath)" />
         </div>
+        <h3 class="text">Nombre: {{ product.name }}</h3>
+        <p class="text">Descripción: {{ product.description }}</p>
+        <p class="text">Precio: {{ product.price }}</p>
+        <a style="text-decoration:none;" 
+          :href="generateWhatsappLink(product)"
+          target="_blank"
+        >
+          Ir con el vendedor
+          <v-icon color="green">mdi-whatsapp</v-icon>
+        </a> 
       </div>
     </div>
-    <v-container v-else>
-      <p>Loading...</p>
-    </v-container>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted } from "vue";
-  import { useRoute,useRouter } from "vue-router";
-  
-  const CONFIG = useRuntimeConfig();
-  
-  const route = useRoute();
-  const router = useRouter()
-  const { id } = route.params;
-  const category = ref(null);
-  const error = ref(null);
-  
-  const fetchCategory = async () => {
-    try {
-      const { data } = await useFetch(
-        `${CONFIG.public.API_BASE_URL}/categories/${id}`,
-      );
-      console.log("dta:", data);
-      category.value = data.value;
-    } catch (err) {
-      error.value = err;
-    }
-  };
-  
-  const getImageUrl = (imagePath) => {
-    return imagePath;
-  };
-  
-  onMounted(async () => {
-    await fetchCategory();
-  });
-  
-  const back = () => {
-    router.back()
+  </div>
+  <v-container v-else>
+    <p>Loading...</p>
+  </v-container>
+</template>
+
+<script setup>
+import { ref, onMounted, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const CONFIG = useRuntimeConfig();
+const route = useRoute();
+const router = useRouter();
+const { id } = route.params;
+const category = ref(null);
+const error = ref(null);
+
+const fetchCategory = async () => {
+  try {
+    const { data } = await useFetch(
+      `${CONFIG.public.API_BASE_URL}/categories/${id}`
+    );
+    category.value = data.value;
+  } catch (err) {
+    error.value = err;
   }
-  </script>
-  
-  <style scoped>
-  .exit-icon{
-    display: none;
-  }
-  .title {
-    background: linear-gradient(to bottom, #009c8c, #00b7a2);
-    color: white;
-    font-family: "Arial", sans-serif;
-    text-align: center;
-    background-color: #009c8c;
-  }
-  .subtitle {
-    font-family: "Arial", sans-serif;
-    margin-top: 2%;
-    text-align: center;
+};
+
+const getImageUrl = (imagePath) => {
+  return imagePath;
+};
+
+const generateWhatsappLink = (product) => {
+  const message = `Hola, me interesa este producto.\nNombre: ${product.name}\nDescripción: ${product.description}\nPrecio: ${product.price}\nImagen: ${getImageUrl(product.imagePath)}\n¿Me podrías dar más información?`;
+  return `https://wa.me/${CONFIG.public.WPP}?text=${encodeURIComponent(message)}`;
+};
+
+onMounted(async () => {
+  await nextTick();
+  await fetchCategory();
+});
+
+const back = () => {
+  router.back();
+}
+</script>
+
+<style scoped>
+.exit-icon {
+  display: none;
+}
+.title {
+  background: linear-gradient(to bottom, #009c8c, #00b7a2);
+  color: white;
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  background-color: #009c8c;
+}
+.subtitle {
+  font-family: "Arial", sans-serif;
+  margin-top: 2%;
+  text-align: center;
+}
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.product-item {
+  flex: 1 1 22%;
+  max-width: 22%;
+  margin: 1%;
+  box-sizing: border-box;
+  text-align: start;
+}
+.product-image {
+  width: 100%;
+}
+.text {
+  margin-top: 1%;
+  font-family: "Arial", sans-serif;
+}
+@media (max-width:540px) {
+  .exit-icon {
+    display: flex;
+    font-size: 4vw;
+    margin-bottom: 4%;
   }
   .product-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline;
+    max-width: 100%;
   }
   .product-item {
-    flex: 1 1 22%;
-    max-width: 22%;
-    margin: 1%;
-    box-sizing: border-box;
-    text-align: start;
+    display: inline;
   }
-  .product-image {
-    width: 100%;
+}
+@media (max-width: 430px) {
+  .exit-icon {
+    display: flex;
+    font-size: 5vw;
+    margin-bottom: 3%;
+  }
+  .title {
+    font-size: 8vw;
+  }
+  .subtitle {
+    font-size: 4vw;
+  }
+  .product-container {
+    display: inline;
+    max-width: 100%;
+  }
+  .product-item {
+    max-width: 100%;
+    margin-top: 5%;
   }
   .text {
-    margin-top: 1%;
-    font-family: "Arial", sans-serif;
+    font-size: 5vw;
   }
-  
-  @media (max-width:540px){
-    .exit-icon{
-      display: flex;
-      font-size: 4vw;
-      margin-bottom: 4%;
-    }
-    .product-container{
-      display: inline;
-      max-width: 100%;
-    }
-    .product-item{
-      display: inline;
-    }
-  }
-  
-  @media (max-width: 430px) {
-    .exit-icon{
-      display: flex;
-      font-size: 5vw;
-      margin-bottom: 3%;
-    }
-    .title {
-      font-size: 8vw;
-    }
-    .subtitle {
-      font-size: 4vw;
-    }
-    .product-container {
-      display: inline;
-      max-width: 100%;
-    }
-    .product-item {
-      max-width: 100%;
-      margin-top: 5%;
-    }
-    .text {
-      font-size: 5vw;
-    }
-  }
-  </style>
-  
+}
+</style>
