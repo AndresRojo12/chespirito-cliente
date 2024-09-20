@@ -1,62 +1,90 @@
 <template>
-  <div>
-    <h1 style="display: flex; justify-content:center ;">Antigüedades Chespirito</h1>
-  </div>
-  <div style="margin-top:4% ;" class="header-container">
-    <v-text-field
-      class="search-field"
-      v-model="search"
-      density="comfortable"
-      placeholder="Buscar categorías"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo"
-      clearable
-      hide-details
-    ></v-text-field>
-  </div>
+  <v-app
+    ><card app class="nav-bar">
+      <p class="nav-bar-title">Antigüedades Chespirito</p>
+      <v-text-field
+        class="search-field"
+        v-model="search"
+        density="comfortable"
+        placeholder="Buscar categorías"
+        prepend-inner-icon="mdi-magnify"
+        variant="solo"
+        clearable
+        hide-details
+      ></v-text-field>
+    </card>
+    <v-main>
+      <v-container>
+        <div class="category-container">
+          <div
+            class="category-item"
+            v-for="cate in filteredCategories.data || []"
+            :key="cate.id"
+          >
+            <nuxt-link :to="`/categories/${cate.id}`">
+              <div>
+                <img
+                  class="category-image"
+                  :src="getImageUrl(cate.imagePath)"
+                />
+              </div>
 
-  <div style="margin-top:4% ;" class="category-container">
-    <div
-      class="category-item"
-      v-for="cate in filteredCategories.data || []"
-      :key="cate.id"
-    >
-      <div>
-        <img class="category-image" :src="getImageUrl(cate.imagePath)" />
-      </div>
-      <nuxt-link :to="`/categories/${cate.id}`">
-        <button class="category-info">
-          <h3>{{ cate.name }}</h3>
-          <p>{{ cate.description }}</p>
-        </button>
-      </nuxt-link>
-    </div>
-  </div>
+              <button class="category-info">
+                <p>{{ cate.name }}</p>
+                <p style="font-size: 13px">{{ cate.description }}</p>
+              </button>
+            </nuxt-link>
+          </div>
+        </div>
 
-  <div class="text-center">
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="8">
-          <v-container class="max-width">
-            <v-pagination
-              v-model="page"
-              :length="filteredCategories.totalPages || 1"
-              class="my-4"
-              @input="getCategories"
-            ></v-pagination>
+        <div class="text-center">
+          <v-container>
+            <v-row justify="center">
+              <v-col cols="8">
+                <v-container class="max-width">
+                  <v-pagination
+                    v-model="page"
+                    :length="filteredCategories.totalPages || 1"
+                    class="my-4"
+                    @input="getCategories"
+                  ></v-pagination>
+                </v-container>
+              </v-col>
+            </v-row>
           </v-container>
+        </div>
+      </v-container>
+    </v-main>
+  </v-app>
+  <footer class="footer">
+    <v-container>
+      <v-row>
+        <v-col></v-col>
+        <v-col cols="12" md="4">
+          <div class="footer-text">
+            <p>Dirección</p>
+            <p>Calle 123, Ciudad</p>
+            <p>País</p>
+            <p>Contacto</p>
+            <p>Tel: +123 456 789</p>
+            <p>Email: contacto@ejemplo.com</p>
+          </div>
         </v-col>
       </v-row>
     </v-container>
-  </div>
+
+    <v-divider style="color: white"></v-divider>
+
+    <p class="footer-botton">
+      {{ new Date().getFullYear() }} — Antigüedades Chespirito
+    </p>
+  </footer>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
 import { ref, onMounted, watch, nextTick } from "vue";
 
 const CONFIG = useRuntimeConfig();
-
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -70,7 +98,7 @@ const getCategories = async () => {
       `${CONFIG.public.API_BASE_URL}categories?page=${page.value}&pageSize=${pageSize.value}`,
       {
         method: "GET",
-      },
+      }
     );
     categories.value = data.value.data;
     filteredCategories.value = data.value;
@@ -100,7 +128,9 @@ watch(search, async (newSearch) => {
 
   try {
     const response = await fetch(
-      `${CONFIG.public.API_BASE_URL}categories/search?query=${encodeURIComponent(newSearch.trim())}`,
+      `${
+        CONFIG.public.API_BASE_URL
+      }categories/search?query=${encodeURIComponent(newSearch.trim())}`
     );
     const data = await response.json();
     filteredCategories.value = { data, totalPages: 1 };
@@ -117,25 +147,28 @@ watch(page, async () => {
 watch(pageSize, async () => {
   await getCategories();
 });
-
 </script>
 
 <style scoped>
-.header-container {
+.nav-bar {
   display: flex;
   justify-content: space-between;
+  max-height: 15%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 156, 140, 0.8),
+    rgba(0, 183, 162, 0.8)
+  );
 }
-.register-button {
-  color: white;
-  background: linear-gradient(to bottom, #009c8c, #00b7a2);
-  font-family: "Arial", sans-serif;
+.nav-bar-title {
+  margin: 2%;
+  font-family: "Poppins", sans-serif;
+  color: #ffffff;
 }
 .search-field {
-  max-width: 300px;
-}
-.page-select {
-  max-width: 300px;
-  margin-top: 2%;
+  max-width: 400px;
+  margin: 1%;
+  border: #009c8c;
 }
 .category-container {
   display: flex;
@@ -144,9 +177,10 @@ watch(pageSize, async () => {
 .category-item {
   flex: 1 1 22%;
   max-width: 22%;
-  margin: 1%;
+  margin: 2%;
   box-sizing: border-box;
   text-align: center;
+  cursor: pointer;
 }
 .category-image {
   width: 100%;
@@ -155,11 +189,15 @@ watch(pageSize, async () => {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  background: linear-gradient(to bottom, #009c8c, #00b7a2);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 156, 140, 0.8),
+    rgba(0, 183, 162, 0.8)
+  );
   color: white;
-  font-family: "Arial", sans-serif;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
 }
 .dialog {
@@ -173,11 +211,24 @@ watch(pageSize, async () => {
   margin-top: 10px;
   font-family: "Arial", sans-serif;
 }
-.cancel-button {
-  background-image: linear-gradient(to bottom, #009c8c, #00b7a2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: "Arial", sans-serif;
+.footer {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.9),
+    rgba(0, 0, 0, 0.9)
+  );
+  height: 240px;
+}
+.footer-text {
+  font-family: "Poppins", sans-serif;
+  color: #d3d3d3;
+}
+.footer-botton {
+  font-family: "Poppins", sans-serif;
+  color: #d3d3d3;
+  height: 20px;
+  margin-left: 5%;
+  margin-top: 1.5%;
 }
 
 @media (max-width: 1024px) {
@@ -187,19 +238,9 @@ watch(pageSize, async () => {
 }
 
 @media (max-width: 540px) {
-  .header-container {
-    display: inline;
-  }
-  .register-button {
-    width: 100%;
-    font-size: 4vw;
-  }
   .search-field {
     max-width: 100%;
     margin-top: 3%;
-  }
-  .page-select {
-    max-width: 100%;
   }
   .category-item {
     flex: 1 1 80%;
@@ -214,17 +255,7 @@ watch(pageSize, async () => {
 }
 
 @media (max-width: 430px) {
-  .header-container {
-    display: inline;
-  }
-  .register-button {
-    width: 100%;
-    font-size: 5vw;
-  }
   .search-field {
-    max-width: 100%;
-  }
-  .page-select {
     max-width: 100%;
   }
   .category-item {
