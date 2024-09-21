@@ -8,9 +8,10 @@
         density="comfortable"
         placeholder="Buscar categorías"
         prepend-inner-icon="mdi-magnify"
-        variant="solo"
+        variant="plain"
         clearable
         hide-details
+        dense
       ></v-text-field>
     </card>
     <v-main>
@@ -162,13 +163,30 @@ watch(pageSize, async () => {
 }
 .nav-bar-title {
   margin: 2%;
-  font-family: "Poppins", sans-serif;
   color: #ffffff;
+  font-size: 20px;
+  font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 .search-field {
-  max-width: 400px;
-  margin: 1%;
-  border: #009c8c;
+  background: linear-gradient(
+    to bottom,
+    rgba(250, 250, 250, 0.8),
+    rgba(0, 180, 183, 0.8)
+  );
+  max-width: 250px;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  height: 60px;
+  margin-right:2%;
+  padding-bottom: 6px;
+  border-width: 5px;
+  border-color: #009c8c;
+  border-style:solid;
+  padding-inline-start:2%;
+  border-radius: 25px;
+  color:black;
+  font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  
 }
 .category-container {
   display: flex;
@@ -191,7 +209,7 @@ watch(pageSize, async () => {
   margin-top: 5px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 156, 140, 0.8),
+    rgba(48, 55, 55, 0.8),
     rgba(0, 183, 162, 0.8)
   );
   color: white;
