@@ -1,19 +1,40 @@
 <template>
-  <v-app
-    ><card app class="nav-bar">
-      <p class="nav-bar-title">Antigüedades Chespirito</p>
-      <v-text-field
+  <v-app>
+    <v-row class="nav-bar">
+      <v-img class="logo" src="/logo.png"></v-img>
+
+      <v-col md="10" class="tabs" v-model="currentTab" @change="changeTab">
+        <v-tab
+          to="/"
+          :class="{ 'active-tab': currentTab === '/' }"
+          @click="currentTab = '/'"
+        >
+          Inicio
+        </v-tab>
+        <v-tab
+          to="/products"
+          :class="{ 'active-tab': currentTab === '/products' }"
+          >Billetes</v-tab
+        >
+        <v-tab to="/coins" :class="{ 'active-tab': currentTab === '/coins' }"
+          >Monedas</v-tab
+        >
+      </v-col>
+    </v-row>
+
+    <v-container
+      ><v-text-field
         class="search-field"
         v-model="search"
         density="comfortable"
-        placeholder="Buscar categorías"
+        placeholder="Busca billetes o monedas"
         prepend-inner-icon="mdi-magnify"
         variant="plain"
         clearable
         hide-details
         dense
-      ></v-text-field>
-    </card>
+      ></v-text-field
+    ></v-container>
     <v-main>
       <v-container>
         <div class="category-container">
@@ -56,30 +77,126 @@
         </div>
       </v-container>
     </v-main>
-  </v-app>
-  <footer class="footer">
-    <v-container>
-      <v-row>
-        <v-col></v-col>
-        <v-col cols="12" md="4">
-          <div class="footer-text">
-            <p>Dirección</p>
-            <p>Calle 123, Ciudad</p>
-            <p>País</p>
-            <p>Contacto</p>
-            <p>Tel: +123 456 789</p>
-            <p>Email: contacto@ejemplo.com</p>
+    <v-container fluid class="p-0 m-0"
+      ><v-divider class="custom-divider"></v-divider
+    ></v-container>
+
+    <v-main>
+      <v-container>
+        <h1>Billetes</h1>
+        <div class="category-container">
+          <div
+            class="category-item"
+            v-for="cate in filteredCategories.data || []"
+            :key="cate.id"
+          >
+            <nuxt-link :to="`/categories/${cate.id}`">
+              <div>
+                <img
+                  class="category-image"
+                  :src="getImageUrl(cate.imagePath)"
+                />
+              </div>
+
+              <button class="category-info">
+                <p>{{ cate.name }}</p>
+                <p style="font-size: 13px">{{ cate.description }}</p>
+              </button>
+            </nuxt-link>
           </div>
-        </v-col>
-      </v-row>
-    </v-container>
+        </div>
 
-    <v-divider style="color: white"></v-divider>
+        <div class="text-center">
+          <v-container>
+            <v-row justify="center">
+              <v-col cols="8">
+                <v-container class="max-width">
+                  <v-pagination
+                    v-model="page"
+                    :length="filteredCategories.totalPages || 1"
+                    class="my-4"
+                    @input="getCategories"
+                  ></v-pagination>
+                </v-container>
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </v-container>
+    </v-main>
+    <v-container fluid class="p-0 m-0"
+      ><v-divider class="custom-divider"></v-divider
+    ></v-container>
+    <v-main>
+      <v-container>
+        <h1>Monedas</h1>
+        <div class="category-container">
+          <div
+            class="category-item"
+            v-for="cate in filteredCategories.data || []"
+            :key="cate.id"
+          >
+            <nuxt-link :to="`/categories/${cate.id}`">
+              <div>
+                <img
+                  class="category-image"
+                  :src="getImageUrl(cate.imagePath)"
+                />
+              </div>
 
-    <p class="footer-botton">
-      {{ new Date().getFullYear() }} — Antigüedades Chespirito
-    </p>
-  </footer>
+              <button class="category-info">
+                <p>{{ cate.name }}</p>
+                <p style="font-size: 13px">{{ cate.description }}</p>
+              </button>
+            </nuxt-link>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <v-container>
+            <v-row justify="center">
+              <v-col cols="8">
+                <v-container class="max-width">
+                  <v-pagination
+                    v-model="page"
+                    :length="filteredCategories.totalPages || 1"
+                    class="my-4"
+                    @input="getCategories"
+                  ></v-pagination>
+                </v-container>
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </v-container>
+    </v-main>
+    <v-footer class="footer">
+      <v-container fluid
+        ><v-row class="justify-center align-center">
+          <v-col cols="12" md="3" class="justify-center">
+            <v-img class="logotipo" src="/logo.png"></v-img>
+          </v-col>
+          <v-col cols="12" md="8">
+            <div class="footer-text">
+              <p>Dirección</p>
+              <p>Calle 123, Ciudad</p>
+              <p>País</p>
+              <p>Contacto</p>
+              <p>Tel: +123 456 789</p>
+              <p>Email: contacto@ejemplo.com</p>
+            </div>
+          </v-col>
+        </v-row>
+        <v-container fluid
+          ><v-divider style="color: white; width: 100vw"></v-divider
+        ></v-container>
+
+        <p class="footer-botton">
+          {{ new Date().getFullYear() }} — Antigüedades Chespirito
+        </p>
+      </v-container>
+    </v-footer>
+  </v-app>
 </template>
 
 <script setup>
@@ -92,6 +209,7 @@ const pageSize = ref(10);
 const categories = ref([]);
 const filteredCategories = ref({ data: [], totalPages: 1 });
 const search = ref("");
+const currentTab = ref("/");
 
 const getCategories = async () => {
   try {
@@ -152,41 +270,40 @@ watch(pageSize, async () => {
 
 <style scoped>
 .nav-bar {
-  display: flex;
-  justify-content: space-between;
-  max-height: 15%;
   background: linear-gradient(
     to bottom,
     rgba(0, 156, 140, 0.8),
     rgba(0, 183, 162, 0.8)
   );
+  display: flex;
+  align-items: center;
+  height: 130px;
 }
-.nav-bar-title {
-  margin: 2%;
-  color: #ffffff;
-  font-size: 20px;
-  font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+.logo {
+  max-height: 170px;
+  height: 170%;
+}
+.tabs {
+  color: white;
+  font-family: "Poppins", sans-serif;
+}
+.active-tab {
+  color: white;
+  font-weight: bold;
+}
+.custom-divider {
+  width: 100vw;
 }
 .search-field {
-  background: linear-gradient(
-    to bottom,
-    rgba(250, 250, 250, 0.8),
-    rgba(0, 180, 183, 0.8)
-  );
-  max-width: 250px;
+  background: white;
+  max-width: 400px;
   margin-top: 1%;
   margin-bottom: 1%;
-  height: 60px;
-  margin-right:2%;
-  padding-bottom: 6px;
-  border-width: 5px;
-  border-color: #009c8c;
-  border-style:solid;
-  padding-inline-start:2%;
-  border-radius: 25px;
-  color:black;
-  font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  
+  height: 52px;
+  border: 0.5px solid #d3d3d3;
+  padding-inline-start: 1%;
+  border-radius: 0px;
+  font-family: "Poppins", sans-serif;
 }
 .category-container {
   display: flex;
@@ -235,18 +352,24 @@ watch(pageSize, async () => {
     rgba(0, 0, 0, 0.9),
     rgba(0, 0, 0, 0.9)
   );
-  height: 240px;
+  display: block;
+  margin-bottom: 0.4%;
+}
+.logotipo {
+  transform: scale(1.3);
+  transition: transform 0.3s;
 }
 .footer-text {
+  margin-bottom: 3%;
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
 }
 .footer-botton {
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
-  height: 20px;
-  margin-left: 5%;
-  margin-top: 1.5%;
+  height: 15px;
+  margin-left: 7%;
+  margin-top: 2%;
 }
 
 @media (max-width: 1024px) {
