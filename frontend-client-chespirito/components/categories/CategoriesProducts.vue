@@ -4,9 +4,20 @@
     <div>
       <h1 class="title">{{ category.name }}</h1>
     </div>
-    <div class="subtitle">
-      <h3>Productos</h3>
-    </div>
+    <v-container
+      ><v-text-field
+        class="search-field"
+        v-model="search"
+        density="comfortable"
+        placeholder="Buscar"
+        prepend-inner-icon="mdi-magnify"
+        variant="plain"
+        clearable
+        hide-details
+        dense
+      ></v-text-field
+    ></v-container>
+
     <div class="product-container">
       <div
         class="product-item"
@@ -24,6 +35,22 @@
             >Ver más...</v-btn
           >
         </v-card-actions>
+      </div>
+      <div class="text-center">
+        <v-container>
+          <v-row justify="center">
+            <v-col cols="8">
+              <v-container class="max-width">
+                <v-pagination
+                  v-model="page"
+                  :length="filteredProducts.totalPages || 1"
+                  class="my-4"
+                  @input="getProducts"
+                ></v-pagination>
+              </v-container>
+            </v-col>
+          </v-row>
+        </v-container>
       </div>
     </div>
     <v-dialog class="dialog" v-model="showDialog">
@@ -88,6 +115,11 @@ const category = ref(null);
 const error = ref(null);
 const showDialog = ref(false);
 const selectedProduct = ref(null);
+const page = ref(1);
+const pageSize = ref(10);
+const products = ref([]);
+const filteredProducts = ref({ data: [], totalPages: 1 });
+const search = ref("");
 
 const fetchCategory = async () => {
   try {
@@ -100,9 +132,57 @@ const fetchCategory = async () => {
   }
 };
 
+const getProducts = async () => {
+  try {
+    const { data } = await useFetch(
+      `${CONFIG.public.API_BASE_URL}products?page=${page.value}&pageSize=${pageSize.value}`,
+      {
+        method: "GET",
+      },
+    );
+    products.value = data.value.data;
+    filteredProducts.value = {
+      data: data.value.data,
+      totalPages: data.value.totalPages,
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    filteredProducts.value = { data: [], totalPages: 1 };
+  }
+};
+
 const getImageUrl = (imagePath) => {
   return imagePath;
 };
+
+watch(search, async (newSearch) => {
+  if (!newSearch.trim()) {
+    filteredProducts.value = {
+      data: products.value,
+      totalPages: filteredProducts.value.totalPages,
+    };
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(newSearch.trim())}`,
+    );
+    const data = await response.json();
+    filteredProducts.value = { data, totalPages: 1 };
+  } catch (error) {
+    console.error("Error fetching filtered products:", error);
+    filteredProducts.value = { data: [], totalPages: 1 };
+  }
+});
+
+watch(page, async () => {
+  await getProducts();
+});
+
+watch(pageSize, async () => {
+  await getProducts();
+});
 
 const generateWhatsappLink = (product) => {
   const message = `Hola, me interesa este producto.\nNombre: ${
@@ -125,6 +205,7 @@ const openDialog = (product) => {
 onMounted(async () => {
   await nextTick();
   await fetchCategory();
+  await getProducts();
 });
 
 const formatPrice = (price) => {
@@ -141,23 +222,22 @@ const formatPrice = (price) => {
   display: none;
 }
 .title {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 156, 140, 0.8),
-    rgba(0, 183, 162, 0.8)
-  );
-  color: white;
+  color: #4a4a4a;
   font-family: "Poppins", sans-serif;
   text-align: center;
-  margin: 0.2%;
+  margin-top: 3%;
   font-size: 48px;
 }
-.subtitle {
+.search-field {
+  background: white;
+  max-width: 400px;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  height: 52px;
+  border: 0.5px solid #d3d3d3;
+  padding-inline-start: 1%;
+  border-radius: 0px;
   font-family: "Poppins", sans-serif;
-  margin-top: 2%;
-  margin-left: 9%;
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 24px;
 }
 .product-container {
   display: flex;

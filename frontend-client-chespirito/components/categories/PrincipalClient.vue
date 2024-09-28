@@ -1,27 +1,5 @@
 <template>
   <v-app>
-    <v-row class="nav-bar">
-      <v-img class="logo" src="/logo.png"></v-img>
-
-      <v-col md="10" class="tabs" v-model="currentTab" @change="changeTab">
-        <v-tab
-          to="/"
-          :class="{ 'active-tab': currentTab === '/' }"
-          @click="currentTab = '/'"
-        >
-          Inicio
-        </v-tab>
-        <v-tab
-          to="/products"
-          :class="{ 'active-tab': currentTab === '/products' }"
-          >Billetes</v-tab
-        >
-        <v-tab to="/coins" :class="{ 'active-tab': currentTab === '/coins' }"
-          >Monedas</v-tab
-        >
-      </v-col>
-    </v-row>
-
     <v-container
       ><v-text-field
         class="search-field"
@@ -35,181 +13,98 @@
         dense
       ></v-text-field
     ></v-container>
-    <v-main>
-      <v-container>
-        <div class="category-container">
-          <div
-            class="category-item"
-            v-for="cate in filteredCategories.data || []"
-            :key="cate.id"
-          >
-            <nuxt-link :to="`/categories/${cate.id}`">
-              <div>
-                <img
-                  class="category-image"
-                  :src="getImageUrl(cate.imagePath)"
-                />
+    <v-main max-height="300">
+      <v-container style="height: 100%">
+        <v-carousel
+          style="height: 100%; width: 100%"
+          v-if="filteredProducts.data.length"
+          cycle
+          :interval="6000"
+          transition="fade-transition"
+          hide-delimiters
+        >
+          <v-carousel-item v-for="item in filteredProducts.data" :key="item.id">
+            <div class="image-container">
+              <img class="category-image" :src="getImageUrl(item.imagePath)" />
+              <div class="image-overlay">
+                <h2 class="category-name">{{ item.name }}</h2>
+                <p class="category-description">{{ item.description }}</p>
               </div>
-
-              <button class="category-info">
-                <p>{{ cate.name }}</p>
-                <p style="font-size: 13px">{{ cate.description }}</p>
-              </button>
-            </nuxt-link>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <v-container>
-            <v-row justify="center">
-              <v-col cols="8">
-                <v-container class="max-width">
-                  <v-pagination
-                    v-model="page"
-                    :length="filteredCategories.totalPages || 1"
-                    class="my-4"
-                    @input="getCategories"
-                  ></v-pagination>
-                </v-container>
-              </v-col>
-            </v-row>
-          </v-container>
-        </div>
-      </v-container>
-    </v-main>
-    <v-container fluid class="p-0 m-0"
-      ><v-divider class="custom-divider"></v-divider
-    ></v-container>
-
-    <v-main>
-      <v-container>
-        <h1>Billetes</h1>
-        <div class="category-container">
-          <div
-            class="category-item"
-            v-for="cate in filteredCategories.data || []"
-            :key="cate.id"
-          >
-            <nuxt-link :to="`/categories/${cate.id}`">
-              <div>
-                <img
-                  class="category-image"
-                  :src="getImageUrl(cate.imagePath)"
-                />
-              </div>
-
-              <button class="category-info">
-                <p>{{ cate.name }}</p>
-                <p style="font-size: 13px">{{ cate.description }}</p>
-              </button>
-            </nuxt-link>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <v-container>
-            <v-row justify="center">
-              <v-col cols="8">
-                <v-container class="max-width">
-                  <v-pagination
-                    v-model="page"
-                    :length="filteredCategories.totalPages || 1"
-                    class="my-4"
-                    @input="getCategories"
-                  ></v-pagination>
-                </v-container>
-              </v-col>
-            </v-row>
-          </v-container>
-        </div>
-      </v-container>
-    </v-main>
-    <v-container fluid class="p-0 m-0"
-      ><v-divider class="custom-divider"></v-divider
-    ></v-container>
-    <v-main>
-      <v-container>
-        <h1>Monedas</h1>
-        <div class="category-container">
-          <div
-            class="category-item"
-            v-for="cate in filteredCategories.data || []"
-            :key="cate.id"
-          >
-            <nuxt-link :to="`/categories/${cate.id}`">
-              <div>
-                <img
-                  class="category-image"
-                  :src="getImageUrl(cate.imagePath)"
-                />
-              </div>
-
-              <button class="category-info">
-                <p>{{ cate.name }}</p>
-                <p style="font-size: 13px">{{ cate.description }}</p>
-              </button>
-            </nuxt-link>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <v-container>
-            <v-row justify="center">
-              <v-col cols="8">
-                <v-container class="max-width">
-                  <v-pagination
-                    v-model="page"
-                    :length="filteredCategories.totalPages || 1"
-                    class="my-4"
-                    @input="getCategories"
-                  ></v-pagination>
-                </v-container>
-              </v-col>
-            </v-row>
-          </v-container>
-        </div>
-      </v-container>
-    </v-main>
-    <v-footer class="footer">
-      <v-container fluid
-        ><v-row class="justify-center align-center">
-          <v-col cols="12" md="3" class="justify-center">
-            <v-img class="logotipo" src="/logo.png"></v-img>
-          </v-col>
-          <v-col cols="12" md="8">
-            <div class="footer-text">
-              <p>Dirección</p>
-              <p>Calle 123, Ciudad</p>
-              <p>País</p>
-              <p>Contacto</p>
-              <p>Tel: +123 456 789</p>
-              <p>Email: contacto@ejemplo.com</p>
             </div>
-          </v-col>
-        </v-row>
-        <v-container fluid
-          ><v-divider style="color: white; width: 100vw"></v-divider
-        ></v-container>
+          </v-carousel-item>
+        </v-carousel>
 
-        <p class="footer-botton">
-          {{ new Date().getFullYear() }} — Antigüedades Chespirito
-        </p>
+        <v-container v-else>
+          <LoadingSpinner />
+        </v-container>
       </v-container>
-    </v-footer>
+    </v-main>
+    <v-container fluid class="p-0 m-0"
+      ><v-divider class="custom-divider"></v-divider
+    ></v-container>
+
+    <v-main>
+      <v-container>
+        <h1>De tu interes</h1>
+        <div class="category-container">
+          <div
+            class="category-item"
+            v-for="item in filteredCategories.data || []"
+            :key="item.id"
+          >
+            <nuxt-link :to="`/categories/${item.id}`">
+              <div>
+                <img
+                  class="category-image"
+                  :src="getImageUrl(item.imagePath)"
+                />
+              </div>
+
+              <button class="category-info">
+                <p>{{ item.name }}</p>
+                <p style="font-size: 13px">{{ item.description }}</p>
+              </button>
+            </nuxt-link>
+          </div>
+        </div>
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from "vue";
 
+import LoadingSpinner from "../LoadingSpinner.vue";
+
 const CONFIG = useRuntimeConfig();
 
 const page = ref(1);
 const pageSize = ref(10);
+const products = ref([]);
+const filteredProducts = ref({ data: [], totalPages: 1 });
 const categories = ref([]);
 const filteredCategories = ref({ data: [], totalPages: 1 });
 const search = ref("");
-const currentTab = ref("/");
+
+const getProducts = async () => {
+  try {
+    const { data } = await useFetch(
+      `${CONFIG.public.API_BASE_URL}products?page=${page.value}&pageSize=${pageSize.value}`,
+      {
+        method: "GET",
+      }
+    );
+    products.value = data.value.data;
+    filteredProducts.value = {
+      data: data.value.data,
+      totalPages: data.value.totalPages,
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    filteredProducts.value = { data: [], totalPages: 1 };
+  }
+};
 
 const getCategories = async () => {
   try {
@@ -233,67 +128,45 @@ const getImageUrl = (imagePath) => {
 
 onMounted(async () => {
   await nextTick();
+  await getProducts();
   await getCategories();
 });
 
 watch(search, async (newSearch) => {
   if (!newSearch.trim()) {
-    filteredCategories.value = {
-      data: categories.value,
-      totalPages: filteredCategories.value.totalPages,
+    filteredProducts.value = {
+      data: products.value,
+      totalPages: filteredProducts.value.totalPages,
     };
     return;
   }
 
   try {
     const response = await fetch(
-      `${
-        CONFIG.public.API_BASE_URL
-      }categories/search?query=${encodeURIComponent(newSearch.trim())}`
+      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(
+        newSearch.trim()
+      )}`
     );
     const data = await response.json();
-    filteredCategories.value = { data, totalPages: 1 };
+    filteredProducts.value = { data, totalPages: 1 };
   } catch (error) {
-    console.error("Error fetching filtered categories:", error);
-    filteredCategories.value = { data: [], totalPages: 1 };
+    console.error("Error fetching filtered products:", error);
+    filteredProducts.value = { data: [], totalPages: 1 };
   }
 });
 
 watch(page, async () => {
+  await getProducts();
   await getCategories();
 });
 
 watch(pageSize, async () => {
+  await getProducts();
   await getCategories();
 });
 </script>
 
 <style scoped>
-.nav-bar {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 156, 140, 0.8),
-    rgba(0, 183, 162, 0.8)
-  );
-  display: flex;
-  align-items: center;
-  height: 130px;
-}
-.logo {
-  max-height: 170px;
-  height: 170%;
-}
-.tabs {
-  color: white;
-  font-family: "Poppins", sans-serif;
-}
-.active-tab {
-  color: white;
-  font-weight: bold;
-}
-.custom-divider {
-  width: 100vw;
-}
 .search-field {
   background: white;
   max-width: 400px;
@@ -304,6 +177,9 @@ watch(pageSize, async () => {
   padding-inline-start: 1%;
   border-radius: 0px;
   font-family: "Poppins", sans-serif;
+}
+.custom-divider {
+  width: 100vw;
 }
 .category-container {
   display: flex;
@@ -317,8 +193,35 @@ watch(pageSize, async () => {
   text-align: center;
   cursor: pointer;
 }
+.image-container {
+  width: 100%;
+  height: 100%;
+}
 .category-image {
   width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+.category-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+.category-description {
+  font-size: 14px;
 }
 .category-info {
   width: 100%;
@@ -333,18 +236,14 @@ watch(pageSize, async () => {
   font-family: "Poppins", sans-serif;
   font-size: 15px;
   border: none;
-  cursor: pointer;
 }
-.dialog {
-  max-width: 500px;
+.fade-transition-enter-active,
+.fade-transition-leave-active {
+  transition: opacity 1.5s ease-in-out;
 }
-.dialog-title {
-  align-self: center;
-  background-image: linear-gradient(to bottom, #009c8c, #00b7a2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-top: 10px;
-  font-family: "Arial", sans-serif;
+.fade-transition-enter,
+.fade-transition-leave-to {
+  opacity: 0;
 }
 .footer {
   background: linear-gradient(
