@@ -4,19 +4,18 @@
     <div>
       <h1 class="title">{{ category.name }}</h1>
     </div>
-    <v-container
-      ><v-text-field
-        class="search-field"
-        v-model="search"
-        density="comfortable"
-        placeholder="Buscar"
-        prepend-inner-icon="mdi-magnify"
-        variant="plain"
-        clearable
-        hide-details
-        dense
-      ></v-text-field
-    ></v-container>
+
+    <v-text-field
+      class="search-field"
+      v-model="search"
+      density="comfortable"
+      placeholder="Buscar"
+      prepend-inner-icon="mdi-magnify"
+      variant="plain"
+      clearable
+      hide-details
+      dense
+    ></v-text-field>
 
     <div class="product-container">
       <div
@@ -138,7 +137,7 @@ const getProducts = async () => {
       `${CONFIG.public.API_BASE_URL}products?page=${page.value}&pageSize=${pageSize.value}`,
       {
         method: "GET",
-      },
+      }
     );
     products.value = data.value.data;
     filteredProducts.value = {
@@ -146,7 +145,6 @@ const getProducts = async () => {
       totalPages: data.value.totalPages,
     };
   } catch (error) {
-    console.error("Error fetching products:", error);
     filteredProducts.value = { data: [], totalPages: 1 };
   }
 };
@@ -166,7 +164,9 @@ watch(search, async (newSearch) => {
 
   try {
     const response = await fetch(
-      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(newSearch.trim())}`,
+      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(
+        newSearch.trim()
+      )}`
     );
     const data = await response.json();
     filteredProducts.value = { data, totalPages: 1 };
@@ -225,12 +225,12 @@ const formatPrice = (price) => {
   color: #4a4a4a;
   font-family: "Poppins", sans-serif;
   text-align: center;
-  margin-top: 3%;
+  margin-top: 1%;
   font-size: 48px;
 }
 .search-field {
   background: white;
-  max-width: 400px;
+  max-width: 500px;
   margin-top: 1%;
   margin-bottom: 1%;
   height: 52px;
@@ -238,11 +238,15 @@ const formatPrice = (price) => {
   padding-inline-start: 1%;
   border-radius: 0px;
   font-family: "Poppins", sans-serif;
+  margin-left: 5%;
 }
 .product-container {
   display: flex;
   flex-wrap: wrap;
-  margin-left: 3%;
+  width: 95%;
+  justify-content: center;
+  gap: 5%;
+  padding: 2%;
 }
 .product-item {
   flex: 1 1 22%;

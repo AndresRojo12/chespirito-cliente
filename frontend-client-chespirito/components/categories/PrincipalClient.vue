@@ -1,91 +1,116 @@
 <template>
   <v-app>
-    <v-container
-      ><v-text-field
-        class="search-field"
-        v-model="search"
-        density="comfortable"
-        placeholder="Busca billetes o monedas"
-        prepend-inner-icon="mdi-magnify"
-        variant="plain"
-        clearable
-        hide-details
-        dense
-      ></v-text-field
-    ></v-container>
-    <v-main max-height="300">
-      <v-container style="height: 100%">
-        <v-carousel
-          style="height: 100%; width: 100%"
-          v-if="filteredProducts.data.length"
-          cycle
-          :interval="6000"
-          transition="fade-transition"
-          hide-delimiters
+    <div class="main-container">
+      <div class="search-container">
+        <v-text-field
+          class="search-field"
+          v-model="search"
+          density="comfortable"
+          placeholder="Busca billetes o monedas"
+          prepend-inner-icon="mdi-magnify"
+          variant="plain"
+          clearable
+          hide-details
+          dense
+          @click:clear="clearSearch"
+        ></v-text-field>
+        <v-list
+          v-if="search.trim() && searchedProducts.data.length"
+          class="autocomplete-list"
         >
-          <v-carousel-item v-for="item in filteredProducts.data" :key="item.id">
-            <div class="image-container">
-              <img class="category-image" :src="getImageUrl(item.imagePath)" />
+          <v-list-item
+            v-for="product in searchedProducts.data"
+            :key="product.id"
+            @click="goToResult(product.id)"
+          >
+            <v-list-item-title>{{ product.name }}</v-list-item-title>
+            <h6>{{ categoryName }}</h6>
+          </v-list-item>
+        </v-list>
+        <p v-else-if="search.trim() && searchedProducts.data.length === 0">
+          No se encontraron productos para "{{ search.trim() }}"
+        </p>
+      </div>
+
+      <v-carousel
+        v-if="filteredProducts.data.length"
+        cycle
+        :interval="8000"
+        transition="fade-transition"
+        hide-delimiters
+      >
+        <v-carousel-item v-for="item in filteredProducts.data" :key="item.id">
+          <div class="carousel-item">
+            <h1 class="carousel-title">
+              {{ categoryName }}
+            </h1>
+
+            <div class="carousel-container">
+              <img class="carousel-image" :src="getImageUrl(item.imagePath)" />
               <div class="image-overlay">
-                <h2 class="category-name">{{ item.name }}</h2>
-                <p class="category-description">{{ item.description }}</p>
+                <h2 class="product-name">{{ item.name }}</h2>
+                <p class="product-description">{{ item.description }}</p>
+                <p class="product-description">Estado {{ item.status }}</p>
+                <p class="product-price">
+                  {{ formatPrice(item.price) }}
+                </p>
               </div>
             </div>
-          </v-carousel-item>
-        </v-carousel>
-
-        <v-container v-else>
-          <LoadingSpinner />
-        </v-container>
-      </v-container>
-    </v-main>
-    <v-container fluid class="p-0 m-0"
-      ><v-divider class="custom-divider"></v-divider
-    ></v-container>
-
-    <v-main>
-      <v-container>
-        <h1>De tu interes</h1>
-        <div class="category-container">
-          <div
-            class="category-item"
-            v-for="item in filteredCategories.data || []"
-            :key="item.id"
-          >
-            <nuxt-link :to="`/categories/${item.id}`">
-              <div>
-                <img
-                  class="category-image"
-                  :src="getImageUrl(item.imagePath)"
-                />
-              </div>
-
-              <button class="category-info">
-                <p>{{ item.name }}</p>
-                <p style="font-size: 13px">{{ item.description }}</p>
-              </button>
-            </nuxt-link>
           </div>
-        </div>
+        </v-carousel-item>
+      </v-carousel>
+
+      <v-container v-else>
+        <LoadingSpinner />
       </v-container>
-    </v-main>
+    </div>
+
+    <v-divider class="custom-divider"></v-divider>
+
+    <div class="main-container">
+      <h1 class="category-title">De tu interes</h1>
+      <div class="category-container">
+        <div
+          class="category-item"
+          v-for="item in filteredCategories.data || []"
+          :key="item.id"
+        >
+          <nuxt-link :to="`/categories/${item.id}`">
+            <div>
+              <img class="category-image" :src="getImageUrl(item.imagePath)" />
+            </div>
+
+            <button class="category-info">
+              <p>{{ item.name }}</p>
+              <p style="font-size: 13px">{{ item.description }}</p>
+            </button>
+          </nuxt-link>
+        </div>
+      </div>
+    </div>
   </v-app>
 </template>
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from "vue";
+import { debounce } from "lodash";
+import { useRouter } from "vue-router";
 
 import LoadingSpinner from "../LoadingSpinner.vue";
 
 const CONFIG = useRuntimeConfig();
+const router = useRouter();
 
 const page = ref(1);
 const pageSize = ref(10);
 const products = ref([]);
-const filteredProducts = ref({ data: [], totalPages: 1 });
 const categories = ref([]);
+const filteredProducts = ref({ data: [], totalPages: 1 });
 const filteredCategories = ref({ data: [], totalPages: 1 });
+const searchedProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
+const combinedData = ref([]);
+const categoryName = ref("");
 
 const getProducts = async () => {
   try {
@@ -100,6 +125,7 @@ const getProducts = async () => {
       data: data.value.data,
       totalPages: data.value.totalPages,
     };
+    combineData();
   } catch (error) {
     console.error("Error fetching products:", error);
     filteredProducts.value = { data: [], totalPages: 1 };
@@ -116,27 +142,18 @@ const getCategories = async () => {
     );
     categories.value = data.value.data;
     filteredCategories.value = data.value;
+    combineData();
   } catch (error) {
     console.error("Error fetching categories:", error);
     filteredCategories.value = { data: [], totalPages: 1 };
   }
 };
 
-const getImageUrl = (imagePath) => {
-  return imagePath;
-};
-
-onMounted(async () => {
-  await nextTick();
-  await getProducts();
-  await getCategories();
-});
-
-watch(search, async (newSearch) => {
+const fetchSearchedProducts = debounce(async (newSearch) => {
   if (!newSearch.trim()) {
-    filteredProducts.value = {
+    searchedProducts.value = {
       data: products.value,
-      totalPages: filteredProducts.value.totalPages,
+      totalPages: 1,
     };
     return;
   }
@@ -148,10 +165,67 @@ watch(search, async (newSearch) => {
       )}`
     );
     const data = await response.json();
-    filteredProducts.value = { data, totalPages: 1 };
+
+    if (data.length === 0) {
+      searchedProducts.value = { data: [], totalPages: 1 };
+    } else {
+      searchedProducts.value = { data, totalPages: 1 };
+    }
   } catch (error) {
     console.error("Error fetching filtered products:", error);
-    filteredProducts.value = { data: [], totalPages: 1 };
+    searchedProducts.value = { data: [], totalPages: 1 };
+  }
+}, 300); 
+
+watch(search, (newSearch) => {
+  fetchSearchedProducts(newSearch);
+});
+
+const getImageUrl = (imagePath) => {
+  return imagePath;
+};
+
+const combineData = () => {
+  if (products.value.length > 0 && categories.value.length > 0) {
+    combinedData.value = products.value.map((item) => {
+      const category = categories.value.find(
+        (cat) => cat.id === item.categoryId
+      );
+      categoryName.value = category.name;
+      return {
+        ...item,
+        categoryName: category ? category.name : products.category.name,
+      };
+    });
+  }
+};
+
+onMounted(async () => {
+  await nextTick();
+  await getProducts();
+  await getCategories();
+});
+
+watch(search, async (newSearch) => {
+  if (!newSearch.trim()) {
+    searchedProducts.value = {
+      data: products.value,
+      totalPages: searchedProducts.value.totalPages,
+    };
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(
+        newSearch.trim()
+      )}`
+    );
+    const data = await response.json();
+    searchedProducts.value = { data, totalPages: 1 };
+  } catch (error) {
+    console.error("Error fetching filtered products:", error);
+    searchedProducts.value = { data: [], totalPages: 1 };
   }
 });
 
@@ -164,12 +238,35 @@ watch(pageSize, async () => {
   await getProducts();
   await getCategories();
 });
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 0,
+  }).format(price);
+};
+
+const goToResult = (item) => {
+  router.push(`/products/${item}`);
+};
+
+const clearSearch = () => {
+  search.value = "";
+  searchedProducts.value = { data: [] };
+};
 </script>
 
 <style scoped>
+.main-container {
+  padding: 1%;
+}
+.search-container {
+  position: relative;
+}
 .search-field {
   background: white;
-  max-width: 400px;
+  max-width: 500px;
   margin-top: 1%;
   margin-bottom: 1%;
   height: 52px;
@@ -178,12 +275,91 @@ watch(pageSize, async () => {
   border-radius: 0px;
   font-family: "Poppins", sans-serif;
 }
-.custom-divider {
-  width: 100vw;
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-height: 300px;
+  overflow-y: auto;
+}
+.v-list-item {
+  padding: 10px 15px;
+  transition: background-color 0.3s ease;
+}
+.v-list-item:hover {
+  background: linear-gradient(to bottom, #f7f7f7, #eaeaea);
+  cursor: pointer;
+}
+.v-list-item-title {
+  font-weight: bold;
+  font-family: "Poppins", sans-serif;
+}
+.v-list-item h6 {
+  color: #666;
+  margin: 1px 2px 0;
+  font-family: "Poppins", sans-serif;
+}
+.carousel-item {
+  display: block;
+  padding: 2%;
+  background: linear-gradient(to bottom, #f7f7f7, #eaeaea);
+}
+.carousel-title {
+  margin-left: 30%;
+  font-family: "Poppins", sans-serif;
+  padding: 1%;
+  color: rgba(0, 0, 0, 0.7);
+}
+.carousel-container {
+  display: flex;
+  align-items: center;
+  margin-left: 10%;
+}
+.carousel-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 55%;
+}
+.image-overlay {
+  top: 19%;
+  right: 0;
+  position: absolute;
+  color: black;
+  width: 39%;
+}
+.product-name {
+  font-size: 24px;
+  font-weight: bold;
+  font-family: "Poppins", sans-serif;
+  padding: 3px;
+  color: rgba(0, 0, 0, 0.7);
+}
+.product-description {
+  font-size: 16px;
+  font-family: "Poppins", sans-serif;
+  padding: 3px;
+}
+.product-price {
+  color: #ffa726;
+  font-size: 16px;
+  padding: 3px;
 }
 .category-container {
   display: flex;
   flex-wrap: wrap;
+}
+.category-title {
+  font-size: 28px;
+  font-family: "Poppins", sans-serif;
+  color: rgba(0, 0, 0, 0.7);
 }
 .category-item {
   flex: 1 1 22%;
@@ -193,35 +369,8 @@ watch(pageSize, async () => {
   text-align: center;
   cursor: pointer;
 }
-.image-container {
-  width: 100%;
-  height: 100%;
-}
 .category-image {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.image-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-.image-container:hover .image-overlay {
-  opacity: 1;
-}
-.category-name {
-  font-size: 18px;
-  font-weight: bold;
-}
-.category-description {
-  font-size: 14px;
 }
 .category-info {
   width: 100%;
@@ -245,36 +394,12 @@ watch(pageSize, async () => {
 .fade-transition-leave-to {
   opacity: 0;
 }
-.footer {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.9),
-    rgba(0, 0, 0, 0.9)
-  );
-  display: block;
-  margin-bottom: 0.4%;
-}
-.logotipo {
-  transform: scale(1.3);
-  transition: transform 0.3s;
-}
-.footer-text {
-  margin-bottom: 3%;
-  font-family: "Poppins", sans-serif;
-  color: #d3d3d3;
-}
-.footer-botton {
-  font-family: "Poppins", sans-serif;
-  color: #d3d3d3;
-  height: 15px;
-  margin-left: 7%;
-  margin-top: 2%;
+.custom-divider {
+  width: 94.7vw;
+  margin: 1%;
 }
 
 @media (max-width: 1024px) {
-  .dialog {
-    margin-bottom: 40%;
-  }
 }
 
 @media (max-width: 540px) {
@@ -286,12 +411,6 @@ watch(pageSize, async () => {
     flex: 1 1 80%;
     max-width: 100%;
   }
-  .dialog {
-    margin-bottom: 0%;
-  }
-  .dialog-title {
-    font-size: 6vw;
-  }
 }
 
 @media (max-width: 430px) {
@@ -301,18 +420,6 @@ watch(pageSize, async () => {
   .category-item {
     flex: 1 1 100%;
     max-width: 100%;
-  }
-  .dialog {
-    margin-bottom: 0%;
-  }
-  .dialog-title {
-    margin-top: 5%;
-    font-size: 6vw;
-  }
-  .cancel-button {
-    width: 100%;
-    font-size: 4vw;
-    margin-bottom: 5%;
   }
 }
 </style>

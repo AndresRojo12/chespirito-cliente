@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <v-row class="nav-bar">
-      <v-img class="logo" src="/logo.png"></v-img>
+      <v-col><v-img class="logo" src="/logo.png"></v-img></v-col>
 
-      <v-col md="10" class="tabs" v-model="currentTab" @change="changeTab">
+      <v-col md="9" class="tabs" v-model="currentTab" @change="changeTab">
         <v-tab :to="'/'">Inicio</v-tab>
         <v-tab
           v-for="cate in filteredCategories.data || []"
@@ -14,6 +14,25 @@
           {{ cate.name }}
         </v-tab>
       </v-col>
+      <v-col class="social-icons">
+        <a
+          href="https://www.facebook.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <v-icon>mdi-facebook</v-icon>
+        </a>
+        <a
+          href="https://www.instagram.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <v-icon>mdi-instagram</v-icon>
+        </a>
+        <a :href="whatsappLink" target="_blank" rel="noopener noreferrer">
+          <v-icon>mdi-whatsapp</v-icon>
+        </a>
+      </v-col>
     </v-row>
 
     <v-main>
@@ -23,36 +42,31 @@
     </v-main>
 
     <v-footer class="footer">
-      <v-container fluid
-        ><v-row class="justify-center align-center">
-          <v-col cols="12" md="3" class="justify-center">
-            <v-img class="logotipo" src="/logo.png"></v-img>
-          </v-col>
-          <v-col cols="12" md="8">
-            <div class="footer-text">
-              <p>Dirección</p>
-              <p>Calle 123, Ciudad</p>
-              <p>País</p>
-              <p>Contacto</p>
-              <p>Tel: +123 456 789</p>
-              <p>Email: contacto@ejemplo.com</p>
-            </div>
-          </v-col>
-        </v-row>
-        <v-container fluid
-          ><v-divider style="color: white; width: 100vw"></v-divider
-        ></v-container>
+      <v-row class="align-center">
+        <v-col cols="12" md="3" class="justify-center">
+          <v-img class="logotipo" src="/logo.png"></v-img>
+        </v-col>
+        <v-col cols="12" md="8">
+          <div class="footer-text">
+            <p class="text">Santa Rosa de Osos</p>
+            <p class="text">Colombia</p>
+            <p class="text">Tel: 310 7683711</p>
+            <p class="text">WhatsApp: +57 310 7683711</p>
+            <p class="text">Julianmesa123@hotmail.com</p>
+          </div>
+        </v-col>
+      </v-row>
+      <v-divider class="custom-divider"></v-divider>
 
-        <p class="footer-botton">
-          {{ new Date().getFullYear() }} — Antigüedades Chespirito
-        </p>
-      </v-container>
+      <p class="footer-botton">
+        {{ new Date().getFullYear() }} — Antigüedades Chespirito
+      </p>
     </v-footer>
   </v-app>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 
 const CONFIG = useRuntimeConfig();
 
@@ -83,12 +97,8 @@ onMounted(async () => {
   await getCategories();
 });
 
-watch(page, async () => {
-  await getCategories();
-});
-
-watch(pageSize, async () => {
-  await getCategories();
+const whatsappLink = computed(() => {
+  return `https://wa.me/${CONFIG.public.WPP}`;
 });
 </script>
 
@@ -101,11 +111,7 @@ watch(pageSize, async () => {
   );
   display: flex;
   align-items: center;
-  height: 130px;
-}
-.logo {
-  max-height: 170px;
-  height: 170%;
+  height: 120px;
 }
 .tabs {
   color: white;
@@ -133,11 +139,28 @@ watch(pageSize, async () => {
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
 }
+.text {
+  padding: 0.5%;
+}
 .footer-botton {
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
   height: 15px;
-  margin-left: 7%;
-  margin-top: 2%;
+  margin: 1%;
+}
+.custom-divider {
+  color: white;
+  width: 96.5vw;
+}
+.social-icons {
+  display: flex;
+  gap: 10px;
+}
+.social-icons a {
+  color: #fff;
+  transition: color 0.3s;
+}
+.social-icons a:hover {
+  color: #f5f5f5;
 }
 </style>
