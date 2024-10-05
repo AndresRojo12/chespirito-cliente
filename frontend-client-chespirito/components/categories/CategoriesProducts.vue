@@ -4,52 +4,60 @@
     <div>
       <h1 class="title">{{ category.name }}</h1>
     </div>
+    <div class="search-container">
+      <v-text-field
+        class="search-field"
+        v-model="search"
+        density="comfortable"
+        placeholder="Buscar"
+        prepend-inner-icon="mdi-magnify"
+        variant="plain"
+        clearable
+        hide-details
+        dense
+        @input="fetchSearchedProducts(search)"
+      ></v-text-field
+      ><v-list
+        v-if="search.trim() && filteredProducts.length"
+        class="autocomplete-list"
+      >
+        <v-list-item
+          v-for="product in filteredProducts"
+          :key="product.id"
+          @click="selectProduct(product)"
+        >
+          <v-list-item-title>{{ product.name }}</v-list-item-title>
+          <h6>{{ category.name }}</h6>
+        </v-list-item>
+      </v-list>
 
-    <v-text-field
-      class="search-field"
-      v-model="search"
-      density="comfortable"
-      placeholder="Buscar"
-      prepend-inner-icon="mdi-magnify"
-      variant="plain"
-      clearable
-      hide-details
-      dense
-    ></v-text-field>
+      <p v-else-if="search.trim() && filteredProducts.length === 0">
+        No se encontraron productos para "{{ search.trim() }}"
+      </p>
+    </div>
 
     <div class="product-container">
       <div
         class="product-item"
-        v-for="product in category.products"
+        v-for="product in products || []"
         :key="product.id"
       >
-        <div class="image-container">
-          <img class="product-image" :src="getImageUrl(product.imagePath)" />
+        <div>
+          <img class="product-image" :src="getImageUrl(product.imagePath1)" />
         </div>
-        <h6 class="name-text">{{ product.name }}</h6>
-        <p class="description-text">{{ product.description }}</p>
-        <p class="price-text">{{ formatPrice(product.price) }}</p>
-        <v-card-actions>
+        <div class="product-info">
+          <h1 class="name-text">
+            {{ product.name }}
+          </h1>
+          <p class="description-text">Estado {{ product.status }}</p>
+          <p class="description-text">{{ product.description }}</p>
+          <p class="price-text">{{ formatPrice(product.price) }}</p>
+          <v-card-actions>
           <v-btn class="open-dialog-button" @click="openDialog(product)"
             >Ver más...</v-btn
           >
         </v-card-actions>
-      </div>
-      <div class="text-center">
-        <v-container>
-          <v-row justify="center">
-            <v-col cols="8">
-              <v-container class="max-width">
-                <v-pagination
-                  v-model="page"
-                  :length="filteredProducts.totalPages || 1"
-                  class="my-4"
-                  @input="getProducts"
-                ></v-pagination>
-              </v-container>
-            </v-col>
-          </v-row>
-        </v-container>
+        </div>
       </div>
     </div>
     <v-dialog class="dialog" v-model="showDialog">
@@ -58,7 +66,10 @@
           mdi-close
         </v-icon>
         <div style="display: inline-flex">
-          <v-img class="dialog-image" :src="selectedProduct?.imagePath"></v-img>
+          <v-img
+            class="dialog-image"
+            :src="selectedProduct?.imagePath1"
+          ></v-img>
           <div style="margin-right: 5%">
             <v-card-title
               ><h5 class="dialog-name">
@@ -111,13 +122,10 @@ const router = useRouter();
 
 const { id } = route.params;
 const category = ref(null);
+const products = ref([]);
 const error = ref(null);
 const showDialog = ref(false);
 const selectedProduct = ref(null);
-const page = ref(1);
-const pageSize = ref(10);
-const products = ref([]);
-const filteredProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
 
 const fetchCategory = async () => {
@@ -126,62 +134,24 @@ const fetchCategory = async () => {
       `${CONFIG.public.API_BASE_URL}/categories/${id}`
     );
     category.value = data.value;
+    products.value = data.value.products || [];
   } catch (err) {
     error.value = err;
   }
 };
 
-const getProducts = async () => {
-  try {
-    const { data } = await useFetch(
-      `${CONFIG.public.API_BASE_URL}products?page=${page.value}&pageSize=${pageSize.value}`,
-      {
-        method: "GET",
-      }
-    );
-    products.value = data.value.data;
-    filteredProducts.value = {
-      data: data.value.data,
-      totalPages: data.value.totalPages,
-    };
-  } catch (error) {
-    filteredProducts.value = { data: [], totalPages: 1 };
+const filteredProducts = computed(() => {
+  if (!search.value.trim()) {
+    return products.value;
   }
-};
-
-const getImageUrl = (imagePath) => {
-  return imagePath;
-};
-
-watch(search, async (newSearch) => {
-  if (!newSearch.trim()) {
-    filteredProducts.value = {
-      data: products.value,
-      totalPages: filteredProducts.value.totalPages,
-    };
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(
-        newSearch.trim()
-      )}`
-    );
-    const data = await response.json();
-    filteredProducts.value = { data, totalPages: 1 };
-  } catch (error) {
-    console.error("Error fetching filtered products:", error);
-    filteredProducts.value = { data: [], totalPages: 1 };
-  }
+  return products.value.filter((product) =>
+    product.name.toLowerCase().includes(search.value.toLowerCase())
+  );
 });
 
-watch(page, async () => {
-  await getProducts();
-});
-
-watch(pageSize, async () => {
-  await getProducts();
+onMounted(async () => {
+  await nextTick();
+  await fetchCategory();
 });
 
 const generateWhatsappLink = (product) => {
@@ -197,23 +167,25 @@ const generateWhatsappLink = (product) => {
   )}`;
 };
 
-const openDialog = (product) => {
-  selectedProduct.value = product;
-  showDialog.value = true;
-};
-
-onMounted(async () => {
-  await nextTick();
-  await fetchCategory();
-  await getProducts();
-});
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
     minimumFractionDigits: 0,
   }).format(price);
+};
+
+const getImageUrl = (imagePath) => {
+  return imagePath;
+};
+
+const selectProduct = (product) => {
+  selectedProduct.value = product;
+};
+
+const openDialog = (product) => {
+  selectedProduct.value = product;
+  showDialog.value = true;
 };
 </script>
 
@@ -228,6 +200,9 @@ const formatPrice = (price) => {
   margin-top: 1%;
   font-size: 48px;
 }
+.search-container {
+  position: relative;
+}
 .search-field {
   background: white;
   max-width: 500px;
@@ -240,20 +215,84 @@ const formatPrice = (price) => {
   font-family: "Poppins", sans-serif;
   margin-left: 5%;
 }
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-height: 300px;
+  overflow-y: auto;
+}
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-height: 300px;
+  overflow-y: auto;
+}
+.v-list-item {
+  padding: 10px 15px;
+  transition: background-color 0.3s ease;
+}
+.v-list-item:hover {
+  background: linear-gradient(to bottom, #f7f7f7, #eaeaea);
+  cursor: pointer;
+}
+.v-list-item-title {
+  font-weight: bold;
+  font-family: "Poppins", sans-serif;
+}
+.v-list-item h6 {
+  color: #666;
+  margin: 1px 2px 0;
+  font-family: "Poppins", sans-serif;
+}
 .product-container {
   display: flex;
   flex-wrap: wrap;
   width: 95%;
-  justify-content: center;
-  gap: 5%;
+  justify-content: start;
+  gap: 1%;
+  padding: 2%;
+}
+.product-container-main {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: start;
+  gap: 1%;
   padding: 2%;
 }
 .product-item {
-  flex: 1 1 22%;
+  transition: transform 0.3s ease;
   max-width: 22%;
   margin: 1%;
   box-sizing: border-box;
   text-align: start;
+  border: rgba(0, 0, 0, 0.1) solid 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.product-item:hover {
+  transform: scale(1.1);
+}
+.product-item-main {
+  display: flex;
+  flex: 1 1 22%;
+  max-width: 100%;
+  box-sizing: border-box;
   border: rgba(0, 0, 0, 0.1) solid 1px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
@@ -261,7 +300,14 @@ const formatPrice = (price) => {
 .product-item:hover {
   box-shadow: 0 8px 15px rgba(0, 0, 140, 0.2);
 }
+.product-item-main:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 140, 0.2);
+}
 .image-container {
+  overflow: visible;
+  position: relative;
+}
+.image-container-main {
   overflow: visible;
   position: relative;
 }
@@ -272,16 +318,33 @@ const formatPrice = (price) => {
   height: auto;
   display: block;
 }
-.image-container:hover .product-image {
-  transform: scale(1.9);
-  position: absolute;
-  right: 0;
-  top: 0;
+.anverso,
+.reverso {
+  width: 95%;
+  height: auto;
+  transition: transform 0.3s ease;
+  margin: 3%;
+}
+.anverso:hover,
+.reverso:hover {
+  transform: scale(1.5);
+  position: relative;
   z-index: 10;
+}
+.main-text {
+  display: block;
+  width: 50%;
+  margin: 1%;
 }
 .name-text {
   font-size: 15px;
   text-align: center;
+  font-family: "Poppins", sans-serif;
+  color: #4a4a4a;
+}
+.name-text-main {
+  font-size: 24px;
+  text-align: start;
   font-family: "Poppins", sans-serif;
   color: #4a4a4a;
 }
@@ -290,6 +353,26 @@ const formatPrice = (price) => {
   text-align: center;
   font-family: "Poppins", sans-serif;
   color: #b0b0b0;
+}
+.description-text-main {
+  font-size: 16px;
+  text-align: start;
+  font-family: "Poppins", sans-serif;
+  color: #b0b0b0;
+}
+.price-text {
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 10px;
+  color: #ffa726;
+  font-weight: bold;
+}
+.price-text-main {
+  text-align: start;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  color: #ffa726;
+  font-weight: bold;
 }
 .dialog-name {
   font-size: 16px;
@@ -301,13 +384,6 @@ const formatPrice = (price) => {
   font-size: 14px;
   font-family: "Poppins", sans-serif;
   padding: 2%;
-}
-.price-text {
-  text-align: center;
-  font-family: "Poppins", sans-serif;
-  font-size: 12px;
-  color: #ffa726;
-  font-weight: bold;
 }
 .dialog-price {
   font-family: "Poppins", sans-serif;

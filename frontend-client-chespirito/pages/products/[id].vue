@@ -1,6 +1,7 @@
 <template>
-  <ProductDetail />
+  <ProductDetail></ProductDetail>>
 </template>
+
 <script setup>
-import ProductDetail from "~/components/products/ProductDetail.vue";
+import ProductDetail from '~/components/products/ProductDetail.vue';
 </script>

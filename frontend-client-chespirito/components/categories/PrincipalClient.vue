@@ -24,7 +24,7 @@
             @click="goToResult(product.id)"
           >
             <v-list-item-title>{{ product.name }}</v-list-item-title>
-            <h6>{{ categoryName }}</h6>
+            <h6>{{ product.description }}</h6>
           </v-list-item>
         </v-list>
         <p v-else-if="search.trim() && searchedProducts.data.length === 0">
@@ -42,11 +42,11 @@
         <v-carousel-item v-for="item in filteredProducts.data" :key="item.id">
           <div class="carousel-item">
             <h1 class="carousel-title">
-              {{ categoryName }}
+              {{ item.category.name }}
             </h1>
 
             <div class="carousel-container">
-              <img class="carousel-image" :src="getImageUrl(item.imagePath)" />
+              <img class="carousel-image" :src="getImageUrl(item.imagePath1)" />
               <div class="image-overlay">
                 <h2 class="product-name">{{ item.name }}</h2>
                 <p class="product-description">{{ item.description }}</p>
@@ -69,24 +69,50 @@
 
     <div class="main-container">
       <h1 class="category-title">De tu interes</h1>
-      <div class="category-container">
-        <div
-          class="category-item"
-          v-for="item in filteredCategories.data || []"
-          :key="item.id"
+      <v-container fluid>
+        <v-carousel
+          style="height: 350px"
+          hide-delimiters
+          v-model="currentCardIndex"
+          @change="handleCardChange"
         >
-          <nuxt-link :to="`/categories/${item.id}`">
-            <div>
-              <img class="category-image" :src="getImageUrl(item.imagePath)" />
-            </div>
+          <v-carousel-item
+            v-for="index in Math.ceil(Math.min(products.length, 8) / 4)"
+            :key="index"
+          >
+            <v-row style="margin-top: 3%;">
+              <v-col
+                class="carousel-container-2"
+                v-for="product in products.slice((index - 1) * 4, index * 4)"
+                :key="product.id"
+                cols="12"
+                md="3"
+              >
+                <div class="product-item">
+                  <h6 class="name-text">{{ product.name }}</h6>
 
-            <button class="category-info">
-              <p>{{ item.name }}</p>
-              <p style="font-size: 13px">{{ item.description }}</p>
-            </button>
-          </nuxt-link>
-        </div>
-      </div>
+                  <div>
+                    <img
+                      class="product-image"
+                      :src="getImageUrl(product.imagePath1)"
+                    />
+                    <p class="description-text">{{ product.description }}</p>
+                    <p class="price-text">{{ formatPrice(product.price) }}</p>
+                  </div>
+                  <v-card-actions>
+                    <v-btn
+                      class="open-dialog-button"
+                      @click="openDialog(product)"
+                    >
+                      Ver más...
+                    </v-btn>
+                  </v-card-actions>
+                </div>
+              </v-col>
+            </v-row>
+          </v-carousel-item>
+        </v-carousel>
+      </v-container>
     </div>
   </v-app>
 </template>
@@ -111,6 +137,7 @@ const searchedProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
 const combinedData = ref([]);
 const categoryName = ref("");
+const currentCardIndex = ref(0);
 
 const getProducts = async () => {
   try {
@@ -135,7 +162,7 @@ const getProducts = async () => {
 const getCategories = async () => {
   try {
     const { data } = await useFetch(
-      `${CONFIG.public.API_BASE_URL}categories?page=${page.value}&pageSize=${pageSize.value}`,
+      `${CONFIG.public.API_BASE_URL}/categories?page=${page.value}&pageSize=${pageSize.value}`,
       {
         method: "GET",
       }
@@ -175,7 +202,7 @@ const fetchSearchedProducts = debounce(async (newSearch) => {
     console.error("Error fetching filtered products:", error);
     searchedProducts.value = { data: [], totalPages: 1 };
   }
-}, 300); 
+}, 300);
 
 watch(search, (newSearch) => {
   fetchSearchedProducts(newSearch);
@@ -206,39 +233,6 @@ onMounted(async () => {
   await getCategories();
 });
 
-watch(search, async (newSearch) => {
-  if (!newSearch.trim()) {
-    searchedProducts.value = {
-      data: products.value,
-      totalPages: searchedProducts.value.totalPages,
-    };
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `${CONFIG.public.API_BASE_URL}products/search?query=${encodeURIComponent(
-        newSearch.trim()
-      )}`
-    );
-    const data = await response.json();
-    searchedProducts.value = { data, totalPages: 1 };
-  } catch (error) {
-    console.error("Error fetching filtered products:", error);
-    searchedProducts.value = { data: [], totalPages: 1 };
-  }
-});
-
-watch(page, async () => {
-  await getProducts();
-  await getCategories();
-});
-
-watch(pageSize, async () => {
-  await getProducts();
-  await getCategories();
-});
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -255,11 +249,25 @@ const clearSearch = () => {
   search.value = "";
   searchedProducts.value = { data: [] };
 };
+
+const handleCardChange = (newIndex) => {
+  if (newIndex >= products.value.length) {
+    currentCardIndex.value = products.value.length - 1;
+  } else {
+    currentCardIndex.value = newIndex;
+  }
+};
 </script>
 
 <style scoped>
 .main-container {
   padding: 1%;
+}
+.carousel-container-2 {
+  transition: transform 0.3s ease;
+}
+.carousel-container-2:hover {
+  transform: scale(1.1);
 }
 .search-container {
   position: relative;
@@ -397,6 +405,31 @@ const clearSearch = () => {
 .custom-divider {
   width: 94.7vw;
   margin: 1%;
+}
+.name-text {
+  font-size: 15px;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  color: #4a4a4a;
+}
+.product-image {
+  width: 94%;
+  margin: 3%;
+  height: auto;
+  display: block;
+}
+.description-text {
+  font-size: 12px;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  color: #b0b0b0;
+}
+.price-text {
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 10px;
+  color: #ffa726;
+  font-weight: bold;
 }
 
 @media (max-width: 1024px) {
