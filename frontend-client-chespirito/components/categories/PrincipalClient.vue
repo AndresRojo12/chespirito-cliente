@@ -33,13 +33,13 @@
       </div>
 
       <v-carousel
-        v-if="filteredProducts.data.length"
+        v-if="randomProducts.length"
         cycle
         :interval="8000"
         transition="fade-transition"
         hide-delimiters
       >
-        <v-carousel-item v-for="item in filteredProducts.data" :key="item.id">
+        <v-carousel-item v-for="item in randomProducts" :key="item.id">
           <div class="carousel-item">
             <h1 class="carousel-title">
               {{ item.category.name }}
@@ -68,10 +68,10 @@
     <v-divider class="custom-divider"></v-divider>
 
     <div class="main-container">
-      <h1 class="category-title">De tu interes</h1>
+      <h1 class="subtitle">De tu interés</h1>
       <v-container fluid>
         <v-carousel
-          style="height: 350px"
+          style="height: auto"
           hide-delimiters
           v-model="currentCardIndex"
           @change="handleCardChange"
@@ -80,15 +80,16 @@
             v-for="index in Math.ceil(Math.min(products.length, 8) / 4)"
             :key="index"
           >
-            <v-row style="margin-top: 3%;">
+            <v-row>
               <v-col
+                style="padding: 2.3%"
                 class="carousel-container-2"
                 v-for="product in products.slice((index - 1) * 4, index * 4)"
                 :key="product.id"
                 cols="12"
                 md="3"
               >
-                <div class="product-item">
+                <v-card class="product-item">
                   <h6 class="name-text">{{ product.name }}</h6>
 
                   <div>
@@ -101,13 +102,13 @@
                   </div>
                   <v-card-actions>
                     <v-btn
-                      class="open-dialog-button"
-                      @click="openDialog(product)"
+                      class="details-button"
+                      @click="goToResult(product.id)"
                     >
-                      Ver más...
+                      Ver más
                     </v-btn>
                   </v-card-actions>
-                </div>
+                </v-card>
               </v-col>
             </v-row>
           </v-carousel-item>
@@ -130,13 +131,9 @@ const router = useRouter();
 const page = ref(1);
 const pageSize = ref(10);
 const products = ref([]);
-const categories = ref([]);
 const filteredProducts = ref({ data: [], totalPages: 1 });
-const filteredCategories = ref({ data: [], totalPages: 1 });
 const searchedProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
-const combinedData = ref([]);
-const categoryName = ref("");
 const currentCardIndex = ref(0);
 
 const getProducts = async () => {
@@ -152,27 +149,9 @@ const getProducts = async () => {
       data: data.value.data,
       totalPages: data.value.totalPages,
     };
-    combineData();
   } catch (error) {
     console.error("Error fetching products:", error);
     filteredProducts.value = { data: [], totalPages: 1 };
-  }
-};
-
-const getCategories = async () => {
-  try {
-    const { data } = await useFetch(
-      `${CONFIG.public.API_BASE_URL}/categories?page=${page.value}&pageSize=${pageSize.value}`,
-      {
-        method: "GET",
-      }
-    );
-    categories.value = data.value.data;
-    filteredCategories.value = data.value;
-    combineData();
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    filteredCategories.value = { data: [], totalPages: 1 };
   }
 };
 
@@ -212,25 +191,9 @@ const getImageUrl = (imagePath) => {
   return imagePath;
 };
 
-const combineData = () => {
-  if (products.value.length > 0 && categories.value.length > 0) {
-    combinedData.value = products.value.map((item) => {
-      const category = categories.value.find(
-        (cat) => cat.id === item.categoryId
-      );
-      categoryName.value = category.name;
-      return {
-        ...item,
-        categoryName: category ? category.name : products.category.name,
-      };
-    });
-  }
-};
-
 onMounted(async () => {
   await nextTick();
   await getProducts();
-  await getCategories();
 });
 
 const formatPrice = (price) => {
@@ -251,23 +214,25 @@ const clearSearch = () => {
 };
 
 const handleCardChange = (newIndex) => {
-  if (newIndex >= products.value.length) {
-    currentCardIndex.value = products.value.length - 1;
+  if (newIndex >= filteredProducts.value.length) {
+    currentCardIndex.value = filteredProducts.value.length - 1;
   } else {
     currentCardIndex.value = newIndex;
   }
 };
+
+function shuffleArray(array) {
+  return Array.isArray(array) ? array.sort(() => Math.random() - 0.5) : [];
+}
+
+const randomProducts = computed(() => {
+  return shuffleArray(filteredProducts.value.data).slice(0, 5);
+});
 </script>
 
 <style scoped>
 .main-container {
   padding: 1%;
-}
-.carousel-container-2 {
-  transition: transform 0.3s ease;
-}
-.carousel-container-2:hover {
-  transform: scale(1.1);
 }
 .search-container {
   position: relative;
@@ -275,12 +240,11 @@ const handleCardChange = (newIndex) => {
 .search-field {
   background: white;
   max-width: 500px;
-  margin-top: 1%;
-  margin-bottom: 1%;
+  margin: 1%;
   height: 52px;
   border: 0.5px solid #d3d3d3;
   padding-inline-start: 1%;
-  border-radius: 0px;
+  border-radius: 3px;
   font-family: "Poppins", sans-serif;
 }
 .autocomplete-list {
@@ -317,7 +281,12 @@ const handleCardChange = (newIndex) => {
 .carousel-item {
   display: block;
   padding: 2%;
-  background: linear-gradient(to bottom, #f7f7f7, #eaeaea);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1),
+    rgba(0, 183, 162, 0.05)
+  );
+  border-radius: 1%;
 }
 .carousel-title {
   margin-left: 30%;
@@ -340,7 +309,7 @@ const handleCardChange = (newIndex) => {
   top: 19%;
   right: 0;
   position: absolute;
-  color: black;
+  color: rgba(0, 0, 0, 0.7);
   width: 39%;
 }
 .product-name {
@@ -353,46 +322,12 @@ const handleCardChange = (newIndex) => {
 .product-description {
   font-size: 16px;
   font-family: "Poppins", sans-serif;
-  padding: 3px;
+  padding: 2px;
 }
 .product-price {
-  color: #ffa726;
   font-size: 16px;
   padding: 3px;
-}
-.category-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-.category-title {
-  font-size: 28px;
-  font-family: "Poppins", sans-serif;
-  color: rgba(0, 0, 0, 0.7);
-}
-.category-item {
-  flex: 1 1 22%;
-  max-width: 22%;
-  margin: 2%;
-  box-sizing: border-box;
-  text-align: center;
-  cursor: pointer;
-}
-.category-image {
-  width: 100%;
-}
-.category-info {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  background: linear-gradient(
-    to bottom,
-    rgba(48, 55, 55, 0.8),
-    rgba(0, 183, 162, 0.8)
-  );
-  color: white;
-  font-family: "Poppins", sans-serif;
-  font-size: 15px;
-  border: none;
+  font-weight: bold;
 }
 .fade-transition-enter-active,
 .fade-transition-leave-active {
@@ -406,30 +341,69 @@ const handleCardChange = (newIndex) => {
   width: 94.7vw;
   margin: 1%;
 }
+.subtitle {
+  text-align: center;
+  font-size: 30px;
+  padding: 1%;
+  font-family: "Poppins", sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+}
+.carousel-container-2 {
+  transition: transform 0.3s ease;
+}
+.carousel-container-2:hover {
+  transform: scale(1.1);
+}
+.product-item {
+  transition: transform 0.3s ease;
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  text-align: start;
+  border: rgba(0, 0, 0, 0.1) solid 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1),
+    rgba(173, 216, 230, 0.1)
+  );
+  border-radius: 1%;
+}
 .name-text {
-  font-size: 15px;
+  font-size: 20px;
+  margin-top: 15%;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+}
+.product-image {
+  width: 100%;
+  padding: 5%;
+}
+.description-text {
+  font-size: 16px;
   text-align: center;
   font-family: "Poppins", sans-serif;
   color: #4a4a4a;
 }
-.product-image {
-  width: 94%;
-  margin: 3%;
-  height: auto;
-  display: block;
-}
-.description-text {
-  font-size: 12px;
-  text-align: center;
-  font-family: "Poppins", sans-serif;
-  color: #b0b0b0;
-}
 .price-text {
   text-align: center;
   font-family: "Poppins", sans-serif;
-  font-size: 10px;
-  color: #ffa726;
+  font-size: 14px;
   font-weight: bold;
+}
+.details-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 156, 140, 0.8),
+    rgba(0, 183, 162, 0.8)
+  );
+  color: white;
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+  border: none;
 }
 
 @media (max-width: 1024px) {
