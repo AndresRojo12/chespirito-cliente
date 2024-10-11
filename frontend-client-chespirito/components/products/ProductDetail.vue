@@ -4,7 +4,7 @@
 
     <div class="product-item1">
       <h1 class="product-name">{{ product.name }}</h1>
-      <div style="display: flex; justify-content: center">
+      <div class="main-image">
         <img
           class="product-image"
           :src="getImageUrl(product.imagePath1)"
@@ -21,13 +21,15 @@
         <p class="product-description">{{ product.description }}</p>
         <p class="product-price">{{ formatPrice(product.price) }}</p>
       </div>
-      <v-btn class="contact-button" :href="generateWhatsappLink(product)"
-        >Contactar al vendedor</v-btn
+      <v-card-actions
+        ><v-btn class="contact-button" :href="generateWhatsappLink(product)"
+          >Contactar al vendedor</v-btn
+        ></v-card-actions
       >
     </div>
 
     <v-dialog v-model="dialog" max-width="80vw">
-      <v-btn icon @click="closeImage">
+      <v-btn class="close-button" icon @click="closeImage">
         <v-icon>mdi-close</v-icon>
       </v-btn>
       <v-img :src="selectedImage" :max-height="maxHeight"></v-img>
@@ -44,14 +46,14 @@
         @change="handleCardChange"
       >
         <v-carousel-item
-          v-for="index in Math.ceil(Math.min(filteredByCategory.length, 8) / 4)"
+          v-for="index in Math.ceil(filteredByCategory.length / itemsPerRow)"
           :key="index"
         >
           <v-row>
             <v-col
               v-for="product in filteredByCategory.slice(
-                (index - 1) * 4,
-                index * 4
+                (index - 1) * itemsPerRow,
+                index * itemsPerRow
               )"
               :key="product.id"
               cols="12"
@@ -93,12 +95,14 @@
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useDisplay } from "vuetify";
 
 import LoadingSpinner from "../LoadingSpinner.vue";
 
 const CONFIG = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
+const { width } = useDisplay();
 
 const { id } = route.params;
 const product = ref(null);
@@ -138,6 +142,16 @@ const filteredByCategory = computed(() => {
   return products.value.filter(
     (product) => product.categoryId === selectedCategory.value
   );
+});
+
+const itemsPerRow = computed(() => {
+  if (width.value >= 600 && width.value <= 970) {
+    return 2;
+  } else if (width.value > 970) {
+    return 4;
+  } else {
+    return 1;
+  }
 });
 
 onMounted(async () => {
@@ -266,6 +280,10 @@ const goToResult = (item) => {
   padding: 2%;
   border-radius: 1%;
 }
+.main-image {
+  display: flex;
+  justify-content: center;
+}
 .product-item2 {
   max-width: 22%;
   height: auto;
@@ -332,11 +350,78 @@ const goToResult = (item) => {
   border: none;
 }
 
+@media (min-width: 541px) and (max-width: 960px) {
+  .main-image {
+    display: block;
+    text-align: center;
+  }
+  .product-image {
+    max-width: 50%;
+  }
+  .product-name {
+    font-size: 4vw;
+  }
+  .product-description,
+  .product-price {
+    font-size: 3vw;
+  }
+  .contact-button {
+    font-size: 2vw;
+    max-width: 50%;
+    margin: 0% auto;
+  }
+  .subtitle {
+    font-size: 4vw;
+  }
+  .name-text {
+    font-size: 3vw;
+  }
+  .description-text,
+  .price-text {
+    font-size: 2.5vw;
+  }
+  .close-button {
+    display: none;
+  }
+}
+
 @media (max-width: 540px) {
   .exit-icon {
     display: flex;
     font-size: 4vw;
     margin-bottom: 4%;
+  }
+  .main-image {
+    display: block;
+  }
+  .product-image {
+    max-width: 100%;
+  }
+  .main-image {
+    display: block;
+  }
+  .product-image {
+    max-width: 100%;
+  }
+  .product-name {
+    font-size: 5vw;
+  }
+  .product-description,
+  .product-price {
+    font-size: 4vw;
+  }
+  .contact-button{
+    font-size: 3vw;
+  }
+  .name-text {
+    font-size: 5vw;
+  }
+  .description-text,
+  .price-text {
+    font-size: 4vw;
+  }
+  .close-button{
+    display: none;
   }
   .product-container {
     display: inline;
@@ -347,7 +432,7 @@ const goToResult = (item) => {
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 539px) {
   .exit-icon {
     display: flex;
     font-size: 5vw;
@@ -366,6 +451,36 @@ const goToResult = (item) => {
   .product-item {
     max-width: 100%;
     margin-top: 5%;
+  }
+  .main-image {
+    display: block;
+  }
+  .product-image {
+    max-width: 100%;
+  }
+  .product-name {
+    font-size: 8vw;
+  }
+  .product-description,
+  .product-price {
+    font-size: 5vw;
+  }
+  .contact-button {
+    font-size: 4vw;
+    max-width: 100%;
+  }
+  .subtitle {
+    font-size: 8vw;
+  }
+  .name-text {
+    font-size: 7vw;
+  }
+  .description-text,
+  .price-text {
+    font-size: 6vw;
+  }
+  .close-button {
+    display: none;
   }
   .text {
     font-size: 5vw;

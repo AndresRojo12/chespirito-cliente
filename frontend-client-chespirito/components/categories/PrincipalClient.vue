@@ -1,44 +1,45 @@
 <template>
   <v-app>
-    <div class="main-container">
-      <div class="search-container">
-        <v-text-field
-          class="search-field"
-          v-model="search"
-          density="comfortable"
-          placeholder="Busca billetes o monedas"
-          prepend-inner-icon="mdi-magnify"
-          variant="plain"
-          clearable
-          hide-details
-          dense
-          @click:clear="clearSearch"
-        ></v-text-field>
-        <v-list
-          v-if="search.trim() && searchedProducts.data.length"
-          class="autocomplete-list"
+    <div class="search-container">
+      <v-text-field
+        class="search-field"
+        v-model="search"
+        density="comfortable"
+        placeholder="Busca billetes o monedas"
+        prepend-inner-icon="mdi-magnify"
+        variant="plain"
+        clearable
+        hide-details
+        dense
+        @click:clear="clearSearch"
+      ></v-text-field>
+      <v-list
+        v-if="search.trim() && searchedProducts.data.length"
+        class="autocomplete-list"
+      >
+        <v-list-item
+          v-for="product in searchedProducts.data"
+          :key="product.id"
+          @click="goToResult(product.id)"
         >
-          <v-list-item
-            v-for="product in searchedProducts.data"
-            :key="product.id"
-            @click="goToResult(product.id)"
-          >
-            <v-list-item-title>{{ product.name }}</v-list-item-title>
-            <h6>{{ product.description }}</h6>
-          </v-list-item>
-        </v-list>
-        <p v-else-if="search.trim() && searchedProducts.data.length === 0">
-          No se encontraron productos para "{{ search.trim() }}"
-        </p>
-      </div>
+          <v-list-item-title>{{ product.name }}</v-list-item-title>
+          <h6>{{ product.description }}</h6>
+        </v-list-item>
+      </v-list>
+      <p v-else-if="search.trim() && searchedProducts.data.length === 0">
+        No se encontraron productos para "{{ search.trim() }}"
+      </p>
+    </div>
 
-      <v-carousel
+    <v-container class="main-carousel" fluid
+      ><v-carousel
         v-if="randomProducts.length"
         cycle
         :interval="8000"
         transition="fade-transition"
+        :show-arrows="false"
         hide-delimiters
-        height="auto"
+        class="carousel"
       >
         <v-carousel-item v-for="item in randomProducts" :key="item.id">
           <div class="carousel-container">
@@ -48,7 +49,8 @@
               :cols="12"
             />
             <div class="image-overlay">
-              <h2 class="product-name">{{ item.name }}</h2>
+              <h1 class="category">{{ item.category.name }}</h1>
+              <h2 class="product-description">{{ item.name }}</h2>
               <p class="product-description">{{ item.description }}</p>
               <p class="product-description">Estado {{ item.status }}</p>
               <p class="product-price">
@@ -59,65 +61,58 @@
         </v-carousel-item>
       </v-carousel>
 
-      <v-container v-else>
-        <LoadingSpinner />
-      </v-container>
-    </div>
+      <v-container v-else> <LoadingSpinner /> </v-container
+    ></v-container>
 
-    <v-divider class="custom-divider"></v-divider>
+    <v-divider></v-divider>
 
-    <div class="main-container">
-      <h1 class="subtitle">De tu interés</h1>
-      <v-container fluid>
-        <v-carousel
-          height="auto"
-          hide-delimiters
-          v-model="currentCardIndex"
-          @change="handleCardChange"
+    <h1 class="subtitle">De tu interés</h1>
+    <v-container fluid>
+      <v-carousel
+        height="auto"
+        hide-delimiters
+        v-model="currentCardIndex"
+        @change="handleCardChange"
+      >
+        <v-carousel-item
+          class="carousel-item"
+          v-for="index in Math.ceil(limitedProducts.length / itemsPerRow)"
+          :key="index"
         >
-          <v-carousel-item
-            v-for="index in Math.ceil(products.length / itemsPerRow)"
-            :key="index"
-          >
-            <v-row>
-              <v-col
-                class="carousel-container-2"
-                v-for="product in products.slice(
-                  (index - 1) * itemsPerRow,
-                  index * itemsPerRow
-                )"
-                :key="product.id"
-                :cols="12"
-                :sm="6"
-                :md="4"
-                :lg="3"
-              >
-                <v-card class="product-item">
-                  <h6 class="name-text">{{ product.name }}</h6>
+          <v-row class="carousel-row">
+            <v-col
+              v-for="product in limitedProducts.slice(
+                (index - 1) * itemsPerRow,
+                index * itemsPerRow
+              )"
+              :key="product.id"
+              :cols="12"
+              :sm="6"
+              :md="4"
+              :lg="3"
+            >
+              <v-card class="product-item">
+                <h6 class="name-text">{{ product.name }}</h6>
 
-                  <div>
-                    <img
-                      class="product-image"
-                      :src="getImageUrl(product.imagePath1)"
-                    />
-                    <p class="description-text">{{ product.description }}</p>
-                    <p class="price-text">{{ formatPrice(product.price) }}</p>
-                  </div>
-                  <v-card-actions>
-                    <v-btn
-                      class="details-button"
-                      @click="goToResult(product.id)"
-                    >
-                      Ver más
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-carousel-item>
-        </v-carousel>
-      </v-container>
-    </div>
+                <div>
+                  <img
+                    class="product-image"
+                    :src="getImageUrl(product.imagePath1)"
+                  />
+                  <p class="description-text">{{ product.description }}</p>
+                  <p class="price-text">{{ formatPrice(product.price) }}</p>
+                </div>
+                <v-card-actions>
+                  <v-btn class="details-button" @click="goToResult(product.id)">
+                    Ver más
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-carousel-item>
+      </v-carousel>
+    </v-container>
   </v-app>
 </template>
 
@@ -213,6 +208,10 @@ const itemsPerRow = computed(() => {
   }
 });
 
+const limitedProducts = computed(() => {
+  return products.value.slice(0, 8);
+});
+
 const formatPrice = (price) => {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -248,9 +247,6 @@ function shuffleArray(array) {
 </script>
 
 <style scoped>
-.main-container {
-  padding: 1%;
-}
 .search-container {
   position: relative;
 }
@@ -293,40 +289,29 @@ function shuffleArray(array) {
   margin: 1px 2px 0;
   font-family: "Poppins", sans-serif;
 }
-.carousel-title {
-  font-family: "Poppins", sans-serif;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.7);
-  margin: 1%;
-}
-.carousel-container {
-  text-align: start;
-  justify-content: center;
-  height: auto;
+.main-carousel {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
     rgba(0, 183, 162, 0.05)
   );
-  border-radius: 1%;
+}
+.carousel-container {
+  justify-content: space-evenly;
   display: flex;
-  margin-top: 3%;
-  padding: 1%;
 }
 .carousel-image {
-  width: 40%;
-  height: auto;
+  max-width: 650px;
+  max-height: 350px;
+  overflow: hidden;
+  margin: 7%;
 }
 .image-overlay {
-  color: rgba(0, 0, 0, 0.7);
-  margin-left: 3%;
-}
-.product-name {
-  font-size: 24px;
-  font-weight: bold;
   font-family: "Poppins", sans-serif;
-  padding: 3px;
   color: rgba(0, 0, 0, 0.7);
+  text-align: center;
+  margin-right: 15%;
+  margin-top: 7%;
 }
 .product-description {
   font-size: 16px;
@@ -346,28 +331,22 @@ function shuffleArray(array) {
 .fade-transition-leave-to {
   opacity: 0;
 }
-.custom-divider {
-  margin-top: 3%;
-}
 .subtitle {
   text-align: center;
-  font-size: 30px;
-  padding: 1%;
+  font-size: 40px;
   font-family: "Poppins", sans-serif;
   color: rgba(0, 0, 0, 0.7);
-  margin: 3%;
+  margin-top: 5%;
 }
-.carousel-container-2 {
-  transition: transform 0.3s ease;
-  padding: 2.3%;
+.carousel-item {
+  max-height: 100%;
 }
-.carousel-container-2:hover {
-  transform: scale(1.1);
+.carousel-row {
+  margin-top: 2%;
+  padding: 23px;
 }
 .product-item {
-  transition: transform 0.3s ease;
-  max-width: 100%;
-  height: auto;
+  transition: transform 0.3s ease, z-index 0.3s ease;
   box-sizing: border-box;
   text-align: start;
   border: rgba(0, 0, 0, 0.1) solid 1px;
@@ -378,6 +357,10 @@ function shuffleArray(array) {
     rgba(173, 216, 230, 0.1)
   );
   border-radius: 1%;
+  max-height: 100%;
+}
+.product-item:hover {
+  transform: scale(1.1);
 }
 .name-text {
   font-size: 20px;
@@ -387,8 +370,9 @@ function shuffleArray(array) {
   color: rgba(0, 0, 0, 0.7);
 }
 .product-image {
-  width: 100%;
   padding: 5%;
+  width: 100%;
+  height: 100%;
 }
 .description-text {
   font-size: 16px;
@@ -416,25 +400,99 @@ function shuffleArray(array) {
   border: none;
 }
 
-@media (min-width: 601px) and (max-width: 960px) {
+@media (min-width: 541px) and (max-width: 960px) {
   .search-field {
     max-width: 100%;
   }
+  .subtitle {
+    font-size: 5vw;
+  }
+  .carousel-container {
+    display: flex;
+  }
+  .carousel-image {
+    max-width: 60%;
+    max-height: 60%;
+    margin: 8% auto;
+  }
+  .image-overlay {
+    margin: 8% auto;
+    margin-right: 10%;
+  }
+  .product-item:hover {
+    transform: none;
+  }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 540px) {
   .search-field {
     max-width: 100%;
+  }
+  .subtitle {
+    font-size: 6vw;
+  }
+  .carousel {
+    text-align: center;
   }
   .carousel-container {
     display: block;
   }
   .carousel-image {
-    width: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    margin: 0% auto;
   }
   .image-overlay {
-    width: 100%;
+    margin: 0% auto;
+  }
+  .carousel-row {
+    margin-top: 0%;
+    padding: 0px;
+  }
+  .product-item:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 539px) {
+  .search-field {
+    max-width: 100%;
+  }
+  .subtitle {
+    font-size: 9vw;
+  }
+  .main-carousel {
     text-align: center;
+  }
+  .carousel-container {
+    display: block;
+  }
+  .carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .image-overlay {
+    margin: 0% auto;
+  }
+  .category {
+    font-size: 8vw;
+  }
+  .product-description,
+  .product-price {
+    font-size: 5vw;
+  }
+  .product-item:hover {
+    transform: none;
+  }
+  .name-text {
+    font-size: 8vw;
+  }
+  .description-text,
+  .price-text {
+    font-size: 5vw;
+  }
+  .details-button{
+    font-size: 4vw;
   }
 }
 </style>

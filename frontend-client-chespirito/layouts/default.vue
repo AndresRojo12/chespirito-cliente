@@ -69,19 +69,21 @@
     </v-main>
 
     <v-footer class="footer" padless>
-      <v-img class="logotipo" src="/logo.png" max-width="300"></v-img>
-      <div class="footer-text">
-        <p class="text">Santa Rosa de Osos</p>
-        <p class="text">Colombia</p>
-        <p class="text">Tel: 310 7683711</p>
-        <p class="text">WhatsApp: +57 310 7683711</p>
-        <p class="text">Julianmesa123@hotmail.com</p>
+      <div style="display: flex">
+        <v-img class="logotipo" src="/logo.png" max-width="300"></v-img>
+        <div class="footer-text">
+          <p class="text">Santa Rosa de Osos</p>
+          <p class="text">Colombia</p>
+          <p class="text">Tel: 310 7683711</p>
+          <p class="text">WhatsApp: +57 310 7683711</p>
+          <p class="text">Julianmesa123@hotmail.com</p>
+        </div>
+      </div>
+      <v-divider class="custom-divider"></v-divider>
+      <div class="footer-bottom">
+        <p>{{ new Date().getFullYear() }} — Antigüedades Chespirito</p>
       </div>
     </v-footer>
-    <v-div class="custom-divider"></v-div>
-    <div class="footer-bottom">
-      <p>{{ new Date().getFullYear() }} — Antigüedades Chespirito</p>
-    </div>
   </v-app>
 </template>
 
@@ -145,7 +147,7 @@ const whatsappLink = computed(() => {
   color: white;
   display: flex;
   align-items: center;
-  margin-left: 4%;
+  margin: 4%;
 }
 .logo {
   width: 100%;
@@ -165,6 +167,7 @@ const whatsappLink = computed(() => {
     rgba(0, 0, 0, 0.9),
     rgba(0, 0, 0, 0.9)
   );
+  display: block;
 }
 .logotipo {
   max-width: 100%;
@@ -174,6 +177,7 @@ const whatsappLink = computed(() => {
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
   font-size: 1.1rem;
+  margin-top: 6%;
 }
 .text {
   padding: 0.5%;
@@ -182,18 +186,13 @@ const whatsappLink = computed(() => {
   font-family: "Poppins", sans-serif;
   color: #d3d3d3;
   font-size: 1rem;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.9),
-    rgba(0, 0, 0, 0.9)
-  );
-  margin-bottom: 5px;
   height: 40px;
   text-align: center;
+  margin-top: 1%;
 }
 .custom-divider {
-  background-color: #4a4a4a;
-  height: 1px;
+  color: #d3d3d3;
+  width: 96.5vw;
 }
 .social-icons {
   display: flex;
@@ -220,30 +219,14 @@ const whatsappLink = computed(() => {
   padding: 15px;
 }
 
-@media (max-width: 600px) {
-  .footer {
-    display: block;
-  }
-  .footer-text p {
-    font-size: 5vw;
-  }
-  .footer-bottom {
-    font-size: 5vw;
-    margin-bottom: 1%;
-  }
-  .tabs {
-    display: none;
-  }
-  .logo {
-    display: none;
-  }
-  .logotipo {
-    max-width: 100%;
-    margin: 0% auto;
-  }
-}
-
 @media (min-width: 601px) and (max-width: 960px) {
+  .nav-bar {
+    height: 100px;
+  }
+  .social-icons {
+    justify-content: end;
+    margin-right: 2%;
+  }
   .footer-text p {
     font-size: 1rem;
   }
@@ -255,6 +238,61 @@ const whatsappLink = computed(() => {
   }
   .logo {
     display: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .nav-bar {
+    height: 100px;
+  }
+  .logo {
+    display: none;
+  }
+  .social-icons {
+    justify-content: end;
+    margin-right: 2%;
+  }
+  .footer-text {
+    font-size: 3vw;
+    margin-top: 10%;
+    margin-right: 10%;
+  }
+  .logotipo {
+    max-width: 80%;
+  }
+}
+
+@media (max-width: 539px) {
+  .tabs {
+    display: none;
+  }
+  .logo {
+    display: none;
+  }
+  .nav-bar {
+    height: 20vw;
+  }
+  .menu-button{
+    font-size: 8vw;
+  }
+  .social-icons {
+    margin-right: 2%;
+    font-size: 5vw;
+  }
+  .footer-text p {
+    font-size: 4vw;
+    max-width: 100%;
+  }
+  .custom-divider {
+    margin-top: 5%;
+  }
+  .footer-bottom {
+    font-size: 4vw;
+    margin-top: 5%;
+  }
+  .logotipo {
+    max-width: 100%;
+    margin: 0% auto;
   }
 }
 </style>
