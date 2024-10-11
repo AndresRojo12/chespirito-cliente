@@ -38,23 +38,22 @@
         :interval="8000"
         transition="fade-transition"
         hide-delimiters
+        height="auto"
       >
         <v-carousel-item v-for="item in randomProducts" :key="item.id">
-          <div class="carousel-item">
-            <h1 class="carousel-title">
-              {{ item.category.name }}
-            </h1>
-
-            <div class="carousel-container">
-              <img class="carousel-image" :src="getImageUrl(item.imagePath1)" />
-              <div class="image-overlay">
-                <h2 class="product-name">{{ item.name }}</h2>
-                <p class="product-description">{{ item.description }}</p>
-                <p class="product-description">Estado {{ item.status }}</p>
-                <p class="product-price">
-                  {{ formatPrice(item.price) }}
-                </p>
-              </div>
+          <div class="carousel-container">
+            <img
+              class="carousel-image"
+              :src="getImageUrl(item.imagePath1)"
+              :cols="12"
+            />
+            <div class="image-overlay">
+              <h2 class="product-name">{{ item.name }}</h2>
+              <p class="product-description">{{ item.description }}</p>
+              <p class="product-description">Estado {{ item.status }}</p>
+              <p class="product-price">
+                {{ formatPrice(item.price) }}
+              </p>
             </div>
           </div>
         </v-carousel-item>
@@ -71,23 +70,27 @@
       <h1 class="subtitle">De tu interés</h1>
       <v-container fluid>
         <v-carousel
-          style="height: auto"
+          height="auto"
           hide-delimiters
           v-model="currentCardIndex"
           @change="handleCardChange"
         >
           <v-carousel-item
-            v-for="index in Math.ceil(Math.min(products.length, 8) / 4)"
+            v-for="index in Math.ceil(products.length / itemsPerRow)"
             :key="index"
           >
             <v-row>
               <v-col
-                style="padding: 2.3%"
                 class="carousel-container-2"
-                v-for="product in products.slice((index - 1) * 4, index * 4)"
+                v-for="product in products.slice(
+                  (index - 1) * itemsPerRow,
+                  index * itemsPerRow
+                )"
                 :key="product.id"
-                cols="12"
-                md="3"
+                :cols="12"
+                :sm="6"
+                :md="4"
+                :lg="3"
               >
                 <v-card class="product-item">
                   <h6 class="name-text">{{ product.name }}</h6>
@@ -122,11 +125,13 @@
 import { ref, onMounted, watch, nextTick } from "vue";
 import { debounce } from "lodash";
 import { useRouter } from "vue-router";
+import { useDisplay } from "vuetify";
 
 import LoadingSpinner from "../LoadingSpinner.vue";
 
 const CONFIG = useRuntimeConfig();
 const router = useRouter();
+const { width } = useDisplay();
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -135,6 +140,7 @@ const filteredProducts = ref({ data: [], totalPages: 1 });
 const searchedProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
 const currentCardIndex = ref(0);
+const randomProducts = ref([]);
 
 const getProducts = async () => {
   try {
@@ -149,11 +155,16 @@ const getProducts = async () => {
       data: data.value.data,
       totalPages: data.value.totalPages,
     };
+    randomProducts.value = shuffleArray(products.value).slice(0, 5);
   } catch (error) {
-    console.error("Error fetching products:", error);
+    products.value = [];
     filteredProducts.value = { data: [], totalPages: 1 };
   }
 };
+
+watch([page, pageSize], async () => {
+  await getProducts();
+});
 
 const fetchSearchedProducts = debounce(async (newSearch) => {
   if (!newSearch.trim()) {
@@ -187,13 +198,19 @@ watch(search, (newSearch) => {
   fetchSearchedProducts(newSearch);
 });
 
-const getImageUrl = (imagePath) => {
-  return imagePath;
-};
-
 onMounted(async () => {
   await nextTick();
   await getProducts();
+});
+
+const itemsPerRow = computed(() => {
+  if (width.value >= 600 && width.value <= 970) {
+    return 2;
+  } else if (width.value > 970) {
+    return 4;
+  } else {
+    return 1;
+  }
 });
 
 const formatPrice = (price) => {
@@ -202,6 +219,10 @@ const formatPrice = (price) => {
     currency: "MXN",
     minimumFractionDigits: 0,
   }).format(price);
+};
+
+const getImageUrl = (imagePath) => {
+  return imagePath;
 };
 
 const goToResult = (item) => {
@@ -224,10 +245,6 @@ const handleCardChange = (newIndex) => {
 function shuffleArray(array) {
   return Array.isArray(array) ? array.sort(() => Math.random() - 0.5) : [];
 }
-
-const randomProducts = computed(() => {
-  return shuffleArray(filteredProducts.value.data).slice(0, 5);
-});
 </script>
 
 <style scoped>
@@ -239,7 +256,7 @@ const randomProducts = computed(() => {
 }
 .search-field {
   background: white;
-  max-width: 500px;
+  max-width: 100%;
   margin: 1%;
   height: 52px;
   border: 0.5px solid #d3d3d3;
@@ -253,13 +270,11 @@ const randomProducts = computed(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  max-height: 300px;
   overflow-y: auto;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   max-height: 300px;
-  overflow-y: auto;
 }
 .v-list-item {
   padding: 10px 15px;
@@ -278,39 +293,33 @@ const randomProducts = computed(() => {
   margin: 1px 2px 0;
   font-family: "Poppins", sans-serif;
 }
-.carousel-item {
-  display: block;
-  padding: 2%;
+.carousel-title {
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.7);
+  margin: 1%;
+}
+.carousel-container {
+  text-align: start;
+  justify-content: center;
+  height: auto;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
     rgba(0, 183, 162, 0.05)
   );
   border-radius: 1%;
-}
-.carousel-title {
-  margin-left: 30%;
-  font-family: "Poppins", sans-serif;
-  padding: 1%;
-  color: rgba(0, 0, 0, 0.7);
-}
-.carousel-container {
   display: flex;
-  align-items: center;
-  margin-left: 10%;
+  margin-top: 3%;
+  padding: 1%;
 }
 .carousel-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 55%;
+  width: 40%;
+  height: auto;
 }
 .image-overlay {
-  top: 19%;
-  right: 0;
-  position: absolute;
   color: rgba(0, 0, 0, 0.7);
-  width: 39%;
+  margin-left: 3%;
 }
 .product-name {
   font-size: 24px;
@@ -338,8 +347,7 @@ const randomProducts = computed(() => {
   opacity: 0;
 }
 .custom-divider {
-  width: 94.7vw;
-  margin: 1%;
+  margin-top: 3%;
 }
 .subtitle {
   text-align: center;
@@ -347,9 +355,11 @@ const randomProducts = computed(() => {
   padding: 1%;
   font-family: "Poppins", sans-serif;
   color: rgba(0, 0, 0, 0.7);
+  margin: 3%;
 }
 .carousel-container-2 {
   transition: transform 0.3s ease;
+  padding: 2.3%;
 }
 .carousel-container-2:hover {
   transform: scale(1.1);
@@ -406,27 +416,25 @@ const randomProducts = computed(() => {
   border: none;
 }
 
-@media (max-width: 1024px) {
-}
-
-@media (max-width: 540px) {
+@media (min-width: 601px) and (max-width: 960px) {
   .search-field {
-    max-width: 100%;
-    margin-top: 3%;
-  }
-  .category-item {
-    flex: 1 1 80%;
     max-width: 100%;
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 600px) {
   .search-field {
     max-width: 100%;
   }
-  .category-item {
-    flex: 1 1 100%;
-    max-width: 100%;
+  .carousel-container {
+    display: block;
+  }
+  .carousel-image {
+    width: 100%;
+  }
+  .image-overlay {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
