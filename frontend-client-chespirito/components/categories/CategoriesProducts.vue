@@ -97,12 +97,11 @@ onMounted(async () => {
 });
 
 const filteredProducts = computed(() => {
-  if (!search.value.trim()) {
-    return products.value;
-  }
-  return products.value.filter((product) =>
-    product.name.toLowerCase().includes(search.value.toLowerCase())
-  );
+  return products.value
+    .filter(product => !product.deleted)
+    .filter(product => 
+      product.name.toLowerCase().includes(search.value.toLowerCase())
+    );
 });
 
 const formatPrice = (price) => {
