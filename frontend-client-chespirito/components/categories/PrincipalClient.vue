@@ -38,7 +38,6 @@
         :interval="8000"
         transition="fade-transition"
         :show-arrows="false"
-        hide-delimiters
         class="carousel"
       >
         <v-carousel-item v-for="item in randomProducts" :key="item.id">
@@ -246,7 +245,7 @@ function shuffleArray(array) {
 }
 </script>
 
-<style scoped>
+<style>
 .search-container {
   position: relative;
 }
@@ -304,14 +303,14 @@ function shuffleArray(array) {
   max-width: 650px;
   max-height: 350px;
   overflow: hidden;
-  margin: 7%;
+  margin: 5%;
 }
 .image-overlay {
   font-family: "Poppins", sans-serif;
   color: rgba(0, 0, 0, 0.7);
   text-align: center;
-  margin-right: 15%;
-  margin-top: 7%;
+  margin-top: 5.5%;
+  margin-right: 10%;
 }
 .product-description {
   font-size: 16px;
@@ -333,16 +332,16 @@ function shuffleArray(array) {
 }
 .subtitle {
   text-align: center;
-  font-size: 40px;
+  font-size: 36px;
   font-family: "Poppins", sans-serif;
   color: rgba(0, 0, 0, 0.7);
-  margin-top: 5%;
+  margin-top: 4%;
 }
 .carousel-item {
   max-height: 100%;
 }
 .carousel-row {
-  margin-top: 2%;
+  margin-top: 1%;
   padding: 23px;
 }
 .product-item {
@@ -374,6 +373,21 @@ function shuffleArray(array) {
   width: 100%;
   height: 100%;
 }
+.category {
+  font-size: 2rem;
+  color: white;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 156, 140, 0.8),
+    rgba(0, 183, 162, 0.8)
+  );
+  border-radius: 5px; 
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 3%;
+  width: 300px;
+}
 .description-text {
   font-size: 16px;
   text-align: center;
@@ -399,6 +413,10 @@ function shuffleArray(array) {
   font-size: 12px;
   border: none;
 }
+.v-carousel__controls {
+  background-color: transparent !important;
+  color: rgba(0, 0, 0, 0.6) !important;    
+}
 
 @media (min-width: 541px) and (max-width: 960px) {
   .search-field {
@@ -417,10 +435,14 @@ function shuffleArray(array) {
   }
   .image-overlay {
     margin: 8% auto;
-    margin-right: 10%;
+    margin-right: 5%;
   }
   .product-item:hover {
     transform: none;
+  }
+  .category{
+    max-width: 100%;
+    width: 215px;
   }
 }
 
@@ -452,6 +474,10 @@ function shuffleArray(array) {
   .product-item:hover {
     transform: none;
   }
+  .category{
+    max-width: 100%;
+    width: 600px;
+  }
 }
 
 @media (max-width: 539px) {
@@ -474,9 +500,6 @@ function shuffleArray(array) {
   .image-overlay {
     margin: 0% auto;
   }
-  .category {
-    font-size: 8vw;
-  }
   .product-description,
   .product-price {
     font-size: 5vw;
@@ -491,8 +514,15 @@ function shuffleArray(array) {
   .price-text {
     font-size: 5vw;
   }
-  .details-button{
+  .details-button {
     font-size: 4vw;
+  }
+  .category{
+    font-size: 7vw;
+    max-width: 100%;
+    margin: 0% auto;
+    width: 400px;
+    margin-bottom: 5%;
   }
 }
 </style>
