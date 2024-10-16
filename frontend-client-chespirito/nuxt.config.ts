@@ -27,7 +27,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       API_BASE_URL: process.env.API_BASE_URL,
-      WPP: process.env.WPP
+      WPP: process.env.WPP,
+      FACEBOOK: process.env.PUBLIC_FACEBOOK
     },
   },
 

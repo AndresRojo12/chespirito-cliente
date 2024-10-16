@@ -20,22 +20,9 @@
         >
       </v-col>
       <v-col class="social-icons">
-        <a
-          href="https://www.facebook.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <v-icon>mdi-facebook</v-icon>
-        </a>
-        <a
-          href="https://www.instagram.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <v-icon>mdi-instagram</v-icon>
-        </a>
-        <a :href="whatsappLink" target="_blank" rel="noopener noreferrer">
-          <v-icon>mdi-whatsapp</v-icon>
+        <a v-for="icon in icons" :key="icon.name" :href="icon.url" target="_blank"
+        rel="noopener noreferrer">
+            <v-icon>{{ icon.name }}</v-icon>
         </a>
       </v-col>
     </v-row>
@@ -94,6 +81,11 @@ import { useDisplay } from "vuetify";
 const CONFIG = useRuntimeConfig();
 const { mdAndUp } = useDisplay();
 
+const icons = ref([
+  { name: "mdi-facebook", url: CONFIG.public.FACEBOOK},
+  { name: "mdi-whatsapp", url: computed(() => `https://wa.me/${CONFIG.public.WPP}`) },
+])
+
 const page = ref(1);
 const pageSize = ref(10);
 const categories = ref([]);
@@ -127,9 +119,6 @@ onMounted(async () => {
   await getCategories();
 });
 
-const whatsappLink = computed(() => {
-  return `https://wa.me/${CONFIG.public.WPP}`;
-});
 </script>
 
 <style scoped>
