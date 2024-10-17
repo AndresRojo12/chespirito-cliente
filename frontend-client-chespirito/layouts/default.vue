@@ -8,7 +8,7 @@
 
       <v-col md="9" class="tabs" v-if="isMdAndUp">
         <v-taps v-model="currentTab" @change="changeTab"
-          ><v-tab :to="'/'">Inicio</v-tab>
+          ><v-tab :class="{ 'active-tab': currentTab === '/' }" :to="'/'">Inicio</v-tab>
           <v-tab
             v-for="cate in filteredCategories.data || []"
             :key="cate.id"
@@ -20,9 +20,14 @@
         >
       </v-col>
       <v-col class="social-icons">
-        <a v-for="icon in icons" :key="icon.name" :href="icon.url" target="_blank"
-        rel="noopener noreferrer">
-            <v-icon>{{ icon.name }}</v-icon>
+        <a
+          v-for="icon in icons"
+          :key="icon.name"
+          :href="icon.url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <v-icon>{{ icon.name }}</v-icon>
         </a>
       </v-col>
     </v-row>
@@ -77,14 +82,11 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useDisplay } from "vuetify";
+import { useRoute } from "vue-router";
 
 const CONFIG = useRuntimeConfig();
+const route = useRoute();
 const { mdAndUp } = useDisplay();
-
-const icons = ref([
-  { name: "mdi-facebook", url: CONFIG.public.FACEBOOK},
-  { name: "mdi-whatsapp", url: computed(() => `https://wa.me/${CONFIG.public.WPP}`) },
-])
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -93,6 +95,21 @@ const filteredCategories = ref({ data: [], totalPages: 1 });
 const currentTab = ref("/");
 const drawer = ref(false);
 const isMdAndUp = mdAndUp;
+
+const icons = ref([
+  { name: "mdi-facebook", url: CONFIG.public.FACEBOOK },
+  {
+    name: "mdi-whatsapp",
+    url: computed(() => `https://wa.me/${CONFIG.public.WPP}`),
+  },
+]);
+
+watch(
+  () => route.path,
+  (newPath) => {
+    currentTab.value = newPath;
+  }
+);
 
 const changeTab = (newTab) => {
   currentTab.value = newTab;
@@ -118,7 +135,6 @@ onMounted(async () => {
   await nextTick();
   await getCategories();
 });
-
 </script>
 
 <style scoped>
@@ -147,8 +163,13 @@ onMounted(async () => {
   font-family: "Poppins", sans-serif;
 }
 .active-tab {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.2));
   color: white;
-  font-weight: bold;
+  padding: 27px 30px;
+  height: auto;
+  clip-path: polygon(0 0, 88% 0, 100% 100%, 11% 100%);
+  transition: all 0.3s ease;
+
 }
 .footer {
   background: linear-gradient(
@@ -261,7 +282,7 @@ onMounted(async () => {
   .nav-bar {
     height: 20vw;
   }
-  .menu-button{
+  .menu-button {
     font-size: 8vw;
   }
   .social-icons {
