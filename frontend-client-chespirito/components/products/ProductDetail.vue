@@ -222,7 +222,6 @@ const goToResult = (item) => {
   margin: 1%;
 }
 .product-name {
-  font-size: 26px;
   font-family: "Poppins", sans-serif;
   padding: 1%;
   text-align: center;
@@ -270,15 +269,14 @@ const goToResult = (item) => {
 }
 .product-item1 {
   max-width: 100%;
-  margin: 1%;
   align-content: center;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
-    rgba(0, 183, 162, 0.05)
+    rgba(0, 183, 162, 0.02)
   );
   padding: 2%;
-  border-radius: 1%;
+  border-radius: 0.5%;
 }
 .main-image {
   display: flex;
@@ -294,13 +292,12 @@ const goToResult = (item) => {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
-    rgba(173, 216, 230, 0.1)
+    rgba(0, 0, 0, 0.05)
   );
 }
 .product-image {
-  width: 500px;
+  width: 600px;
   cursor: pointer;
-  margin: 1%;
 }
 .v-card {
   text-align: center;
@@ -410,7 +407,7 @@ const goToResult = (item) => {
   .product-price {
     font-size: 4vw;
   }
-  .contact-button{
+  .contact-button {
     font-size: 3vw;
   }
   .name-text {
@@ -420,7 +417,7 @@ const goToResult = (item) => {
   .price-text {
     font-size: 4vw;
   }
-  .close-button{
+  .close-button {
     display: none;
   }
   .product-container {

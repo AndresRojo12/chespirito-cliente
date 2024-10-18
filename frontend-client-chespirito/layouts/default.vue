@@ -163,7 +163,7 @@ onMounted(async () => {
   font-family: "Poppins", sans-serif;
 }
 .active-tab {
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.2));
+  background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
   color: white;
   padding: 27px 30px;
   height: auto;

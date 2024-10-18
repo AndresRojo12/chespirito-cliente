@@ -169,7 +169,7 @@ const clearSearch = () => {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
-    rgba(173, 216, 230, 0.1)
+    rgba(0, 0, 0, 0.05)
   );
 }
 .product-item {

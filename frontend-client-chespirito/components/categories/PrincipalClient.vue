@@ -292,7 +292,7 @@ function shuffleArray(array) {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
-    rgba(0, 183, 162, 0.05)
+    rgba(0, 183, 162, 0.03)
   );
 }
 .carousel-container {
@@ -353,7 +353,7 @@ function shuffleArray(array) {
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1),
-    rgba(173, 216, 230, 0.1)
+    rgba(0, 0, 0, 0.05)
   );
   border-radius: 1%;
   max-height: 100%;
@@ -374,19 +374,19 @@ function shuffleArray(array) {
   height: 100%;
 }
 .category {
+  border-radius: 2px;
   font-size: 2rem;
-  color: white;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 156, 140, 0.8),
-    rgba(0, 183, 162, 0.8)
-  );
-  border-radius: 5px; 
+  color: #4c4c4c;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   font-family: "Poppins", sans-serif;
   margin-bottom: 3%;
   width: 300px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 1),
+    rgba(0, 183, 162, 0.9)
+  );
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 .description-text {
   font-size: 16px;
@@ -415,7 +415,7 @@ function shuffleArray(array) {
 }
 .v-carousel__controls {
   background-color: transparent !important;
-  color: rgba(0, 0, 0, 0.6) !important;    
+  color: rgba(0, 0, 0, 0.6) !important;
 }
 
 @media (min-width: 541px) and (max-width: 960px) {
@@ -440,7 +440,7 @@ function shuffleArray(array) {
   .product-item:hover {
     transform: none;
   }
-  .category{
+  .category {
     max-width: 100%;
     width: 215px;
   }
@@ -474,7 +474,7 @@ function shuffleArray(array) {
   .product-item:hover {
     transform: none;
   }
-  .category{
+  .category {
     max-width: 100%;
     width: 600px;
   }
@@ -517,7 +517,7 @@ function shuffleArray(array) {
   .details-button {
     font-size: 4vw;
   }
-  .category{
+  .category {
     font-size: 7vw;
     max-width: 100%;
     margin: 0% auto;
