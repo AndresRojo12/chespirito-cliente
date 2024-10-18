@@ -74,7 +74,6 @@
         @change="handleCardChange"
       >
         <v-carousel-item
-          class="carousel-item"
           v-for="index in Math.ceil(limitedProducts.length / itemsPerRow)"
           :key="index"
         >
@@ -337,9 +336,6 @@ function shuffleArray(array) {
   color: rgba(0, 0, 0, 0.7);
   margin-top: 4%;
 }
-.carousel-item {
-  max-height: 100%;
-}
 .carousel-row {
   margin-top: 1%;
   padding: 23px;
@@ -350,11 +346,6 @@ function shuffleArray(array) {
   text-align: start;
   border: rgba(0, 0, 0, 0.1) solid 1px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 1),
-    rgba(0, 0, 0, 0.05)
-  );
   border-radius: 1%;
   max-height: 100%;
 }

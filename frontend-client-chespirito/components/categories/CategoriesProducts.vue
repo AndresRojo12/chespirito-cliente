@@ -166,11 +166,6 @@ const clearSearch = () => {
   border: rgba(0, 0, 0, 0.1) solid 1px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 1%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 1),
-    rgba(0, 0, 0, 0.05)
-  );
 }
 .product-item {
   transition: transform 0.5s ease, width 0.5s ease, height 0.5s ease;

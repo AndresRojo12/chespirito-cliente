@@ -40,7 +40,7 @@
     <div class="main-container">
       <h1 class="subtitle">Productos relacionados</h1>
       <v-carousel
-        style="height: auto; margin-top: 3%"
+        class="carousel"
         hide-delimiters
         v-model="currentCardIndex"
         @change="handleCardChange"
@@ -48,8 +48,9 @@
         <v-carousel-item
           v-for="index in Math.ceil(filteredByCategory.length / itemsPerRow)"
           :key="index"
+          class="carousel-item"
         >
-          <v-row>
+          <v-row class="carousel-row">
             <v-col
               v-for="product in filteredByCategory.slice(
                 (index - 1) * itemsPerRow,
@@ -261,6 +262,9 @@ const goToResult = (item) => {
 .main-container {
   padding: 2%;
 }
+.carousel-row {
+  margin-top: 3%;
+}
 .subtitle {
   font-family: "Poppins", sans-serif;
   margin-top: 2%;
@@ -283,21 +287,21 @@ const goToResult = (item) => {
   justify-content: center;
 }
 .product-item2 {
+  transition: transform 0.3s ease;
   max-width: 22%;
   height: auto;
   margin: 1%;
   box-sizing: border-box;
   text-align: start;
   border-radius: 1%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 1),
-    rgba(0, 0, 0, 0.05)
-  );
+}
+.product-item2:hover {
+  transform: scale(1.1);
 }
 .product-image {
   width: 600px;
   cursor: pointer;
+  padding: 5px;
 }
 .v-card {
   text-align: center;
@@ -347,7 +351,7 @@ const goToResult = (item) => {
   border: none;
 }
 
-@media (min-width: 541px) and (max-width: 960px) {
+@media (min-width: 541px) and (max-width: 1024px) {
   .main-image {
     display: block;
     text-align: center;
@@ -358,13 +362,16 @@ const goToResult = (item) => {
   .product-name {
     font-size: 4vw;
   }
+  .product-item2:hover {
+    transform: none;
+  }
   .product-description,
   .product-price {
     font-size: 3vw;
   }
   .contact-button {
     font-size: 2vw;
-    max-width: 50%;
+    max-width: 100%;
     margin: 0% auto;
   }
   .subtitle {
@@ -386,13 +393,22 @@ const goToResult = (item) => {
   .exit-icon {
     display: flex;
     font-size: 4vw;
-    margin-bottom: 4%;
-  }
-  .main-image {
-    display: block;
+    margin: 3%;
   }
   .product-image {
     max-width: 100%;
+  }
+  .main-container {
+    padding: 10%;
+  }
+  .carousel-row {
+    margin-top: 0%;
+  }
+  .product-item1 {
+    padding: 5%;
+  }
+  .product-item2:hover {
+    transform: none;
   }
   .main-image {
     display: block;
@@ -433,13 +449,19 @@ const goToResult = (item) => {
   .exit-icon {
     display: flex;
     font-size: 5vw;
-    margin-bottom: 3%;
+    margin: 3%;
   }
   .title {
     font-size: 8vw;
   }
   .subtitle {
     font-size: 4vw;
+  }
+  .main-container {
+    padding: 0%;
+  }
+  .product-item1 {
+    padding: 0%;
   }
   .product-container {
     display: inline;
