@@ -7,7 +7,8 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "npm install"
+    "postinstall": "npm install",
+    "dev": "nuxt dev"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
