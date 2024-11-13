@@ -7,11 +7,20 @@ export default defineNuxtConfig({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
     ],
     link: [
-      { 
-        rel: 'stylesheet', 
-        href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap' 
-      }
-    ]
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
+      },
+    ],
+
+    modules: ["@nuxtjs/sitemap"],
+    sitemap: {
+      hostname: "https://www.antiguedadeschespirito.com/",
+      gzip: true,
+      routes: [
+        
+      ],
+    },
   },
   devtools: { enabled: true },
   css: [
@@ -28,8 +37,7 @@ export default defineNuxtConfig({
     public: {
       API_BASE_URL: process.env.API_BASE_URL,
       WPP: process.env.WPP,
-      FACEBOOK: process.env.PUBLIC_FACEBOOK
+      FACEBOOK: process.env.PUBLIC_FACEBOOK,
     },
   },
-
 });
