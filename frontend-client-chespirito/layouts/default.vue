@@ -32,7 +32,7 @@
       </v-col>
     </v-row>
 
-    <v-navigation-drawer v-model="drawer" app temporary>
+    <v-navigation-drawer v-model="drawer" app temporary  width="200">
       <v-list>
         <v-list-item :to="'/'">
           <v-list-item-icon>
@@ -220,10 +220,18 @@ onMounted(async () => {
   border-radius: 8px;
   transition: transform 0.3s ease;
 }
+.drawer-text {
+  white-space: normal; 
+  word-break: break-word; 
+  overflow-wrap: anywhere; 
+}
 .v-list-item-title {
   font-size: 1.2em;
   font-weight: bold;
   font-family: "Poppins", sans-serif;
+  white-space: normal; 
+  word-break: break-word; 
+  overflow-wrap: anywhere; 
 }
 .v-list-item {
   padding: 15px;
