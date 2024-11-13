@@ -1,6 +1,5 @@
 import process from "process";
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   head: {
     meta: [
@@ -12,15 +11,17 @@ export default defineNuxtConfig({
         href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
       },
     ],
-
-    modules: ["@nuxtjs/sitemap"],
-    sitemap: {
-      hostname: "https://www.antiguedadeschespirito.com/",
-      gzip: true,
-      routes: [
-        
-      ],
-    },
+  },
+  modules: ["@nuxtjs/sitemap"],
+  site: {
+    url: "https://www.antiguedadeschespirito.com",
+  },
+  sitemap: {
+    hostname: "https://www.antiguedadeschespirito.com",
+    gzip: true,
+    routes: [
+      
+    ],
   },
   devtools: { enabled: true },
   css: [

@@ -1,0 +1,1 @@
+import{_ as e,s as o,t as c,B as a,C as t,v as n}from"./Cyt3rAzN.js";const _={},d=s=>(a("data-v-1fba8025"),s=s(),t(),s),r={class:"loading-spinner"},i=d(()=>n("div",{class:"spinner"},null,-1)),p=[i];function l(s,f){return o(),c("div",r,p)}const v=e(_,[["render",l],["__scopeId","data-v-1fba8025"]]);export{v as L};
