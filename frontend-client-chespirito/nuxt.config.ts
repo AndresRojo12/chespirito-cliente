@@ -22,9 +22,17 @@ export default defineNuxtConfig({
   sitemap: {
     hostname: "https://www.antiguedadeschespirito.com",
     gzip: true,
-    routes: [
+    async routes() {
+      const categories = await fetch(`${process.env.API_BASE_URL}/categories`)
+        .then(res => res.json());
+      const products = await fetch(`${process.env.API_BASE_URL}/products`)
+        .then(res => res.json());
       
-    ],
+      const categoryRoutes = categories.map((category) => `/categories/${category.id}`);
+      const productRoutes = products.map((product) => `/products/${product.id}`);
+
+      return [...categoryRoutes, ...productRoutes];
+    }
   },
   devtools: { enabled: true },
   css: [
