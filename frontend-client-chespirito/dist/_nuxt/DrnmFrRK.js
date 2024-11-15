@@ -1,1 +1,0 @@
-import{_ as r}from"./Pn1dASHD.js";import{Q as t,s as o}from"./Cyt3rAzN.js";import"./DaHtoe_n.js";import"./CVr3vsAD.js";const m={__name:"principal-client",setup(a){return(c,e)=>(o(),t(r))}};export{m as default};
