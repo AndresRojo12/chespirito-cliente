@@ -11,7 +11,7 @@ export default defineNuxtConfig({
         href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
       },
       {
-        rel: "icon", href: "/frontend-client-chespirito/static/favicon.ico"
+        rel: "icon", href: "/favicon.ico"
       }
     ],
   },
@@ -22,17 +22,9 @@ export default defineNuxtConfig({
   sitemap: {
     hostname: "https://www.antiguedadeschespirito.com",
     gzip: true,
-    async routes() {
-      const categories = await fetch(`${process.env.API_BASE_URL}/categories`)
-        .then(res => res.json());
-      const products = await fetch(`${process.env.API_BASE_URL}/products`)
-        .then(res => res.json());
+    routes: [
       
-      const categoryRoutes = categories.map((category) => `/categories/${category.id}`);
-      const productRoutes = products.map((product) => `/products/${product.id}`);
-
-      return [...categoryRoutes, ...productRoutes];
-    }
+    ],
   },
   devtools: { enabled: true },
   css: [
