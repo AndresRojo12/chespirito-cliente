@@ -8,7 +8,9 @@
 
       <v-col md="9" class="tabs" v-if="isMdAndUp">
         <v-taps v-model="currentTab" @change="changeTab"
-          ><v-tab :class="{ 'active-tab': currentTab === '/' }" :to="'/'">Inicio</v-tab>
+          ><v-tab :class="{ 'active-tab': currentTab === '/' }" :to="'/'"
+            >Inicio</v-tab
+          >
           <v-tab
             v-for="cate in filteredCategories.data || []"
             :key="cate.id"
@@ -32,7 +34,7 @@
       </v-col>
     </v-row>
 
-    <v-navigation-drawer v-model="drawer" app temporary  width="200">
+    <v-navigation-drawer v-model="drawer" app temporary width="200">
       <v-list>
         <v-list-item :to="'/'">
           <v-list-item-icon>
@@ -169,7 +171,6 @@ onMounted(async () => {
   height: auto;
   clip-path: polygon(0 0, 88% 0, 100% 100%, 11% 100%);
   transition: all 0.3s ease;
-
 }
 .footer {
   background: linear-gradient(
@@ -221,17 +222,17 @@ onMounted(async () => {
   transition: transform 0.3s ease;
 }
 .drawer-text {
-  white-space: normal; 
-  word-break: break-word; 
-  overflow-wrap: anywhere; 
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .v-list-item-title {
   font-size: 1.2em;
   font-weight: bold;
   font-family: "Poppins", sans-serif;
-  white-space: normal; 
-  word-break: break-word; 
-  overflow-wrap: anywhere; 
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .v-list-item {
   padding: 15px;

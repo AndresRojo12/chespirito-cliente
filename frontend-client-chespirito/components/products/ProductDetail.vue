@@ -2,7 +2,7 @@
   <div v-if="product">
     <v-icon class="exit-icon" @click="router.back()">mdi-arrow-left</v-icon>
 
-    <div class="product-item1">
+    <div class="product-item1" id="product-details">
       <h1 class="product-name">{{ product.name }}</h1>
       <div class="main-image">
         <img
@@ -114,6 +114,7 @@ const dialog = ref(false);
 const selectedImage = ref("");
 const maxHeight = ref("80vh");
 const selectedCategory = ref();
+const productDetails = ref(null);
 
 const fetchProduct = async () => {
   try {
@@ -210,7 +211,12 @@ const closeImage = () => {
 };
 
 const goToResult = (item) => {
-  router.push(`/products/${item}`);
+  router.push(`/products/${item}`).then(() => {
+    const productDetailsElement = document.getElementById("product-details");
+    if (productDetailsElement) {
+      productDetailsElement.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 };
 </script>
 

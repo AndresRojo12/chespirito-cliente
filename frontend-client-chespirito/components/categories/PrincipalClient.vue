@@ -1,5 +1,13 @@
 <template>
   <v-app>
+    <div class="image-container">
+      <div class="blurred-background"></div>
+      <img :src="imageSrc" alt="Imagen aleatoria" class="random-image" />
+      <div class="overlay-text">
+        <h2>Compra y venta de billetes y monedas</h2>
+      </div>
+    </div>
+
     <div class="search-container">
       <v-text-field
         class="search-field"
@@ -134,6 +142,7 @@ const searchedProducts = ref({ data: [], totalPages: 1 });
 const search = ref("");
 const currentCardIndex = ref(0);
 const randomProducts = ref([]);
+const imageSrc = ref("");
 
 const getProducts = async () => {
   try {
@@ -149,6 +158,12 @@ const getProducts = async () => {
       totalPages: data.value.totalPages,
     };
     randomProducts.value = shuffleArray(products.value).slice(0, 5);
+    const randomProduct =
+      randomProducts.value[
+        Math.floor(Math.random() * randomProducts.value.length)
+      ];
+    const randomImage = randomProduct.imagePath1;
+    imageSrc.value = randomImage;
   } catch (error) {
     products.value = [];
     filteredProducts.value = { data: [], totalPages: 1 };
@@ -222,6 +237,8 @@ const getImageUrl = (imagePath) => {
   return imagePath;
 };
 
+const randomIndex = Math.floor(Math.random() * products.length);
+
 const goToResult = (item) => {
   router.push(`/products/${item}`);
 };
@@ -245,6 +262,39 @@ function shuffleArray(array) {
 </script>
 
 <style>
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: 1% auto;
+}
+.random-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.blurred-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  filter: blur(1px); 
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px; 
+}
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  font-size: 40px;
+  font-family: "Poppins", sans-serif;
+}
 .search-container {
   position: relative;
 }
@@ -303,6 +353,7 @@ function shuffleArray(array) {
   max-height: 350px;
   overflow: hidden;
   margin: 5%;
+  border-radius: 5px;
 }
 .image-overlay {
   font-family: "Poppins", sans-serif;
@@ -365,7 +416,7 @@ function shuffleArray(array) {
   height: 100%;
 }
 .category {
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 2rem;
   color: #4c4c4c;
   text-align: center;
