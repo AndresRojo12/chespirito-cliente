@@ -1,24 +1,26 @@
 <template>
-  <div v-if="category">
+  <section v-if="category">
     <v-icon class="exit-icon" @click="router.back()">mdi-arrow-left</v-icon>
-    <div>
+    <section>
       <h1 class="title">{{ category.name }}</h1>
-    </div>
+    </section>
 
-    <v-text-field
-      class="search-field"
-      v-model="search"
-      density="comfortable"
-      placeholder="Buscar"
-      prepend-inner-icon="mdi-magnify"
-      variant="plain"
-      clearable
-      hide-details
-      dense
-      @click:clear="clearSearch"
-    ></v-text-field>
+    <section>
+      <v-text-field
+        class="search-field"
+        v-model="search"
+        density="comfortable"
+        placeholder="Buscar"
+        prepend-inner-icon="mdi-magnify"
+        variant="plain"
+        clearable
+        hide-details
+        dense
+        @click:clear="clearSearch"
+      ></v-text-field>
+    </section>
 
-    <div class="product-container">
+    <section class="product-container">
       <v-card
         :class="{
           'highlighted-card':
@@ -55,8 +57,8 @@
           <h2 class="no-results-title">¡No se encontraron productos!</h2>
         </v-card-text>
       </v-card>
-    </div>
-  </div>
+    </section>
+  </section>
 
   <v-container v-else>
     <LoadingSpinner />
@@ -98,8 +100,8 @@ onMounted(async () => {
 
 const filteredProducts = computed(() => {
   return products.value
-    .filter(product => !product.deleted)
-    .filter(product => 
+    .filter((product) => !product.deleted)
+    .filter((product) =>
       product.name.toLowerCase().includes(search.value.toLowerCase())
     );
 });
@@ -131,10 +133,10 @@ const clearSearch = () => {
   display: none;
 }
 .title {
-  color: #4a4a4a;
   font-family: "Poppins", sans-serif;
   text-align: center;
-  font-size: 40px;
+  font-size: 2rem;
+  color: #222222;
   margin: 2%;
 }
 .search-field {
@@ -190,10 +192,10 @@ const clearSearch = () => {
   );
 }
 .no-results-title {
-  font-size: 24px;
+  font-size: 1.5rem;
+  color: #333333;
   font-weight: bold;
   margin: 10px 0;
-  color: rgba(0, 0, 0, 0.7);
 }
 .v-icon {
   margin-bottom: 15px;
@@ -218,14 +220,15 @@ const clearSearch = () => {
   text-align: center;
 }
 .name-text {
-  font-size: 20px;
+  font-size: 1.5rem;
+  color: #222222;
   font-family: "Poppins", sans-serif;
   text-align: center;
   margin-top: 10%;
-  color: rgba(0, 0, 0, 0.7);
 }
 .description-text {
-  font-size: 14px;
+  font-size: 1rem;
+  color: #333333;
   padding: 0.5%;
   font-family: "Poppins", sans-serif;
 }

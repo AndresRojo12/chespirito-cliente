@@ -1,14 +1,14 @@
 <template>
   <v-app>
-    <div class="image-container">
+    <section class="image-container">
       <div class="blurred-background"></div>
-      <img :src="imageSrc" alt="Imagen aleatoria" class="random-image" />
+      <img :src="imageSrc" alt="Product image " class="random-image" />
       <div class="overlay-text">
         <h2>Compra y venta de billetes y monedas</h2>
       </div>
-    </div>
+    </section>
 
-    <div class="search-container">
+    <section class="search-container">
       <v-text-field
         class="search-field"
         v-model="search"
@@ -37,10 +37,10 @@
       <p v-else-if="search.trim() && searchedProducts.data.length === 0">
         No se encontraron productos para "{{ search.trim() }}"
       </p>
-    </div>
+    </section>
 
-    <v-container class="main-carousel" fluid
-      ><v-carousel
+    <section class="main-carousel">
+      <v-carousel
         v-if="randomProducts.length"
         cycle
         :interval="8000"
@@ -68,13 +68,39 @@
         </v-carousel-item>
       </v-carousel>
 
-      <v-container v-else> <LoadingSpinner /> </v-container
-    ></v-container>
+      <v-container v-else> <LoadingSpinner /> </v-container>
+    </section>
 
     <v-divider></v-divider>
-
+    <section class="numismatic-section">
+      <div class="content-container">
+        <h1 class="section-title">
+          Bienvenido al lugar ideal para los apasionados de la numismática
+        </h1>
+        <p class="intro-text">
+          El fascinante arte de coleccionar billetes y monedas de diversas
+          épocas y lugares. En <strong>Antigüedades Chespirito</strong>, nos
+          dedicamos a la compra y venta de billetes y monedas únicos, antiguos y
+          modernos, garantizando autenticidad y calidad.
+        </p>
+        <ul class="highlights-list">
+          <li>Billetes raros de diferentes países y épocas.</li>
+          <li>Monedas conmemorativas, de curso legal o históricas.</li>
+          <li>
+            Asesoramiento personalizado para evaluar el valor de tus piezas.
+          </li>
+        </ul>
+        <p class="closing-text">
+          Nos especializamos en atender tanto a coleccionistas expertos como a
+          quienes están comenzando su travesía en el mundo de la numismática.
+          ¡Explora, compra o vende con confianza y da vida a tu pasión por la
+          numismática!
+        </p>
+      </div>
+    </section>
+    <v-divider></v-divider>
     <h1 class="subtitle">De tu interés</h1>
-    <v-container fluid>
+    <section>
       <v-carousel
         height="auto"
         hide-delimiters
@@ -118,7 +144,7 @@
           </v-row>
         </v-carousel-item>
       </v-carousel>
-    </v-container>
+    </section>
   </v-app>
 </template>
 
@@ -237,8 +263,6 @@ const getImageUrl = (imagePath) => {
   return imagePath;
 };
 
-const randomIndex = Math.floor(Math.random() * products.length);
-
 const goToResult = (item) => {
   router.push(`/products/${item}`);
 };
@@ -281,9 +305,8 @@ function shuffleArray(array) {
   width: 100%;
   height: 100%;
   background-size: cover;
-  filter: blur(1px); 
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 4px; 
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
 }
 .overlay-text {
   position: absolute;
@@ -292,7 +315,7 @@ function shuffleArray(array) {
   transform: translate(-50%, -50%);
   color: white;
   text-align: center;
-  font-size: 40px;
+  font-size: 2rem;
   font-family: "Poppins", sans-serif;
 }
 .search-container {
@@ -338,11 +361,7 @@ function shuffleArray(array) {
   font-family: "Poppins", sans-serif;
 }
 .main-carousel {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 1),
-    rgba(0, 183, 162, 0.03)
-  );
+  padding-bottom: 2rem;
 }
 .carousel-container {
   justify-content: space-evenly;
@@ -353,11 +372,11 @@ function shuffleArray(array) {
   max-height: 350px;
   overflow: hidden;
   margin: 5%;
-  border-radius: 5px;
+  border-radius: 3px;
 }
 .image-overlay {
   font-family: "Poppins", sans-serif;
-  color: rgba(0, 0, 0, 0.7);
+  color: "#333333";
   text-align: center;
   margin-top: 5.5%;
   margin-right: 10%;
@@ -382,9 +401,9 @@ function shuffleArray(array) {
 }
 .subtitle {
   text-align: center;
-  font-size: 36px;
+  font-size: 2rem;
+  color: #222222;
   font-family: "Poppins", sans-serif;
-  color: rgba(0, 0, 0, 0.7);
   margin-top: 4%;
 }
 .carousel-row {
@@ -408,7 +427,7 @@ function shuffleArray(array) {
   margin-top: 15%;
   text-align: center;
   font-family: "Poppins", sans-serif;
-  color: rgba(0, 0, 0, 0.7);
+  color: "#333333";
 }
 .product-image {
   padding: 5%;
@@ -416,31 +435,26 @@ function shuffleArray(array) {
   height: 100%;
 }
 .category {
-  border-radius: 3px;
+  border-radius: 2px;
   font-size: 2rem;
-  color: #4c4c4c;
+  color: "#333333";
   text-align: center;
   font-family: "Poppins", sans-serif;
   margin-bottom: 3%;
   width: 300px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 1),
-    rgba(0, 183, 162, 0.9)
-  );
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 .description-text {
   font-size: 16px;
   text-align: center;
   font-family: "Poppins", sans-serif;
-  color: #4a4a4a;
+  color: "#333333";
 }
 .price-text {
   text-align: center;
   font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: bold;
+  color: "#333333";
 }
 .details-button {
   width: 100%;
@@ -458,6 +472,50 @@ function shuffleArray(array) {
 .v-carousel__controls {
   background-color: transparent !important;
   color: rgba(0, 0, 0, 0.6) !important;
+}
+.numismatic-section {
+  background: linear-gradient(
+    to left,
+    rgba(0, 156, 140, 00.5),
+    rgba(0, 156, 140, 0.9)
+  );
+  color: white;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+.content-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  font-family: "Poppins", sans-serif;
+  color: white;
+}
+.intro-text {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+.highlights-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  font-family: "Poppins", sans-serif;
+}
+.highlights-list li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-family: "Poppins", sans-serif;
+}
+.closing-text {
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
 }
 
 @media (min-width: 541px) and (max-width: 960px) {
@@ -565,6 +623,12 @@ function shuffleArray(array) {
     margin: 0% auto;
     width: 400px;
     margin-bottom: 5%;
+  }
+  .image-container {
+    width: 100%;
+  }
+  .overlay-text {
+    font-size: 3vh;
   }
 }
 </style>

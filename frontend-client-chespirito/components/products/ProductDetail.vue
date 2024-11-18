@@ -1,8 +1,8 @@
 <template>
-  <div v-if="product">
+  <section v-if="product">
     <v-icon class="exit-icon" @click="router.back()">mdi-arrow-left</v-icon>
 
-    <div class="product-item1" id="product-details">
+    <section ref="productDetails" id="product-details" class="product-item1">
       <h1 class="product-name">{{ product.name }}</h1>
       <div class="main-image">
         <img
@@ -26,21 +26,23 @@
           >Contactar al vendedor</v-btn
         ></v-card-actions
       >
-    </div>
+    </section>
 
     <v-dialog v-model="dialog" max-width="80vw">
-      <v-btn class="close-button" icon @click="closeImage">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+      <div class="d-flex justify-end">
+        <v-btn class="close-button" icon @click="closeImage">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
       <v-img :src="selectedImage" :max-height="maxHeight"></v-img>
     </v-dialog>
 
     <v-divider class="custom-divider"></v-divider>
 
-    <div class="main-container">
+    <section class="main-container">
       <h1 class="subtitle">Productos relacionados</h1>
       <v-carousel
-        class="carousel"
+        height="auto"
         hide-delimiters
         v-model="currentCardIndex"
         @change="handleCardChange"
@@ -48,7 +50,6 @@
         <v-carousel-item
           v-for="index in Math.ceil(filteredByCategory.length / itemsPerRow)"
           :key="index"
-          class="carousel-item"
         >
           <v-row class="carousel-row">
             <v-col
@@ -83,12 +84,9 @@
           </v-row>
         </v-carousel-item>
       </v-carousel>
-    </div>
-  </div>
-  <v-container v-else-if="error">
-    <p>Error al cargar el producto: {{ error.message }}</p>
-  </v-container>
-  <v-container v-else-if="error">
+    </section>
+  </section>
+  <v-container v-else>
     <LoadingSpinner />
   </v-container>
 </template>
@@ -103,6 +101,7 @@ import LoadingSpinner from "../LoadingSpinner.vue";
 const CONFIG = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
+const productDetails = ref(null);
 const { width } = useDisplay();
 
 const { id } = route.params;
@@ -114,9 +113,16 @@ const dialog = ref(false);
 const selectedImage = ref("");
 const maxHeight = ref("80vh");
 const selectedCategory = ref();
-const productDetails = ref(null);
+const isLoading = ref(false);
+
+onMounted(() => {
+  if (route.state && route.state.scrollToDetails) {
+    productDetails.value?.scrollIntoView({ behavior: "smooth" });
+  }
+});
 
 const fetchProduct = async () => {
+  isLoading.value = true;
   try {
     const { data } = await useFetch(
       `${CONFIG.public.API_BASE_URL}/products/${id}`
@@ -125,10 +131,13 @@ const fetchProduct = async () => {
     selectedCategory.value = data.value.categoryId;
   } catch (err) {
     error.value = err;
+  } finally {
+    isLoading.value = false;
   }
 };
 
 const getProducts = async () => {
+  isLoading.value = true;
   try {
     const { data } = await useFetch(`${CONFIG.public.API_BASE_URL}/products`, {
       method: "GET",
@@ -137,6 +146,8 @@ const getProducts = async () => {
     currentCardIndex.value = 0;
   } catch (error) {
     error.value = err;
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -211,11 +222,9 @@ const closeImage = () => {
 };
 
 const goToResult = (item) => {
-  router.push(`/products/${item}`).then(() => {
-    const productDetailsElement = document.getElementById("product-details");
-    if (productDetailsElement) {
-      productDetailsElement.scrollIntoView({ behavior: "smooth" });
-    }
+  router.push({
+    path: `/products/${item}`,
+    state: { scrollToDetails: true },
   });
 };
 </script>
@@ -232,18 +241,20 @@ const goToResult = (item) => {
   font-family: "Poppins", sans-serif;
   padding: 1%;
   text-align: center;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: 2rem;
+  color: #222222;
 }
 .product-description,
 .product-status {
-  font-size: 16px;
   font-family: "Poppins", sans-serif;
   margin: 0.5%;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: 1rem;
+  color: #333333;
 }
 .product-price {
   font-family: "Poppins", sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
+  color: #333333;
   padding: 1%;
   font-weight: bold;
 }
@@ -257,25 +268,19 @@ const goToResult = (item) => {
   );
   color: white;
   font-family: "Poppins", sans-serif;
-  font-size: 15px;
+  font-size: 1rem;
   border: none;
 }
 .category-title {
-  font-size: 28px;
+  font-size: 2rem;
+  color: #222222;
   font-family: "Poppins", sans-serif;
-  color: rgba(0, 0, 0, 0.7);
-}
-.main-container {
-  padding: 2%;
-}
-.carousel-row {
-  margin-top: 3%;
 }
 .subtitle {
   font-family: "Poppins", sans-serif;
-  margin-top: 2%;
   text-align: center;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: 2rem;
+  color: #222222;
 }
 .product-item1 {
   max-width: 100%;
@@ -296,7 +301,6 @@ const goToResult = (item) => {
   transition: transform 0.3s ease;
   max-width: 22%;
   height: auto;
-  margin: 1%;
   box-sizing: border-box;
   text-align: start;
   border-radius: 1%;
@@ -307,12 +311,10 @@ const goToResult = (item) => {
 .product-image {
   width: 600px;
   cursor: pointer;
-  padding: 5px;
 }
 .v-card {
   text-align: center;
   max-width: 100%;
-  margin: 1%;
   box-sizing: border-box;
   text-align: center;
   border: rgba(0, 0, 0, 0.1) solid 1px;
@@ -327,18 +329,19 @@ const goToResult = (item) => {
   margin-top: 10%;
   font-family: "Poppins", sans-serif;
   text-align: center;
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: 1.5rem;
+  color: #222222;
 }
 .status-text,
 .description-text {
-  font-size: 15px;
+  font-size: 1rem;
+  color: #333333;
   text-align: center;
-  color: #4a4a4a;
   font-family: "Poppins", sans-serif;
 }
 .price-text {
-  font-size: 13px;
+  font-size: 1rem;
+  color: #222222;
   text-align: center;
   font-weight: bold;
   font-family: "Poppins", sans-serif;
@@ -353,7 +356,7 @@ const goToResult = (item) => {
   );
   color: white;
   font-family: "Poppins", sans-serif;
-  font-size: 12px;
+  font-size: 0.8rem;
   border: none;
 }
 

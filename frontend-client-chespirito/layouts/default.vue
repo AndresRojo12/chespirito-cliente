@@ -82,19 +82,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, onMounted, computed, nextTick, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { useRoute } from "vue-router";
 
 const CONFIG = useRuntimeConfig();
 const route = useRoute();
+const router = useRouter();
 const { mdAndUp } = useDisplay();
 
 const page = ref(1);
 const pageSize = ref(10);
 const categories = ref([]);
 const filteredCategories = ref({ data: [], totalPages: 1 });
-const currentTab = ref("/");
+const currentTab = ref(route.path);
 const drawer = ref(false);
 const isMdAndUp = mdAndUp;
 
@@ -114,7 +115,10 @@ watch(
 );
 
 const changeTab = (newTab) => {
-  currentTab.value = newTab;
+  if (currentTab.value !== newTab) {
+    currentTab.value = newTab;
+    router.push(newTab); 
+  }
 };
 
 const getCategories = async () => {
