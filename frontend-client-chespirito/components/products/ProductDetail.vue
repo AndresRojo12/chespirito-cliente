@@ -75,7 +75,7 @@
                   <p class="price-text">{{ formatPrice(product.price) }}</p>
                 </div>
                 <v-card-actions>
-                  <v-btn class="contact-button" @click="goToResult(product.id)">
+                  <v-btn class="contact-button" @click="viewDetails(product.id)">
                     Ver más
                   </v-btn>
                 </v-card-actions>
@@ -221,11 +221,12 @@ const closeImage = () => {
   dialog.value = false;
 };
 
-const goToResult = (item) => {
-  router.push({
-    path: `/products/${item}`,
-    state: { scrollToDetails: true },
+const viewDetails = async (productId) => {
+  await router.push({
+    path: `/products/${productId}`,
+    hash: "#product-details",
   });
+  await nextTick();
 };
 </script>
 
